@@ -1,18 +1,19 @@
 # Holvek for Laravel - Capabilities Implemented
+
 ---
 
-## 1. Content & Editor Tools (Gutenberg)
+## 1. Content & Metadata Tools
 
-- **On-Page SEO Checklist:** Analyzes your post as you write, checking title length, meta description length, keyword usage, headings, and image alt text.
+- **On-Page SEO Checklist:** Analyzes your content, checking title length, meta description length, keyword usage, headings, and image alt text.
 - **Readability Checker:** Measures how easy your text is to read using the Flesch-Kincaid scale. Highlights long sentences and excessive passive voice.
-- **Search Result Preview:** Shows an accurate preview of how your page will look in Google, Bing & other supported search results on both desktop and mobile screens.
-- **Social Media Previews:** Shows how your post will look when shared on supported social media platforms like Facebook, X(Twitter), LinkedIn, Instagram and Tiktok.
+- **Search Result Preview:** Shows an accurate preview of how your page will look in Google, Bing, and other supported search results on both desktop and mobile screens.
+- **Social Media Previews:** Shows how your post will look when shared on supported social media platforms like Facebook, X (Twitter), LinkedIn, Instagram, and TikTok.
 - **Custom Canonical URLs:** Allows you to set a custom canonical URL to prevent duplicate content issues if not done automatically by the package.
-- **Robots Meta Controls:** Setting individual pages to `noindex`, `nofollow`, `noarchive`, `nosnippet`, or `noimageindex` directly from the editor sidebar.
-- **FAQ Schema Builder:** Add questions and answers directly in the sidebar to automatically create structured FAQ schema for rich search results.
-- **AI Writing Assistant:** Suggests SEO titles and meta descriptions using your connected AI key (OpenAI, Anthropic, Ollama, or the Holvek remote API). Ollama defaults to this server. A remote Ollama host receives the text you submit.
-- **Internal Link Suggestions:** Suggests relevant articles on your site that you can link to from the current post.
-- **Cornerstone Content:** Flag your most important articles as cornerstone content. The plugin notifies you if these articles have not been updated in over 180 days.
+- **Robots Meta Controls:** Set individual pages to `noindex`, `nofollow`, `noarchive`, `nosnippet`, or `noimageindex` directly from the dashboard or via Eloquent models.
+- **FAQ Schema Builder:** Add questions and answers directly to automatically create structured FAQ schema for rich search results.
+- **AI Writing Assistant (v1):** Suggests SEO titles and meta descriptions using your connected AI key (OpenAI, Anthropic, Ollama, or the Holvek remote API).
+- **Internal Link Suggestions:** Suggests relevant articles on your site that you can link to.
+- **Cornerstone Content:** Flag your most important articles. The system notifies you if these articles have not been updated in over 180 days.
 
 ---
 
@@ -30,37 +31,32 @@ Supported schema types include:
 - **Local Business/Organization:** Adds business name, address, phone number, and operating hours.
 - **Recipe:** Formats recipe ingredients, cooking time, and nutrition info.
 - **Event:** Formats event dates, venue, and attendance mode.
-- **Product:** Integrates with WooCommerce to output price, currency, and stock availability.
-- **Custom Schema:** Paste any custom JSON-LD schema directly into a page when you need specialized markup.
+- **Product:** Outputs price, currency, and stock availability schema.
+- **Custom Schema:** Output any custom JSON-LD schema when you need specialized markup.
 
 ---
 
 ## 3. XML & HTML Sitemaps
 
-- **XML Sitemap Index (`/sitemap.xml`):** Generates clean, search-engine-ready sitemaps with automatic monthly chunking for sites with many posts.
+- **XML Sitemap Index (`/sitemap.xml`):** Generates clean, search-engine-ready sitemaps with automatic chunking.
 - **Google News Sitemap (`/sitemap-news.xml`):** Automatically creates a news sitemap containing articles published in the last 48 hours, following Google News technical guidelines.
-- **Video Sitemap (`/video-sitemap.xml`):** Finds embedded videos (YouTube, Vimeo, self-hosted MP4) and includes them in a dedicated video sitemap.
-- **Sitemap Controls:** Choose which post types and taxonomies to include or exclude, and exclude specific post IDs.
-- **HTML Sitemap Shortcode:** Use `[holvek_sitemap]` to display a clean, organized site map on any page for your visitors.
+- **Video Sitemap (`/video-sitemap.xml`):** Finds embedded videos and includes them in a dedicated video sitemap.
+- **Sitemap Controls:** Choose which models or routes to include or exclude.
 
 ---
 
 ## 4. Instant Search Engine Indexing Submission
-Get your website indexed by Google, Bing, ChatGPT, X, and other search engines.
-- **IndexNow Integration:** Instantly notifies Bing, Yandex, and Seznam whenever you publish, update, or delete a post.
-- **Google Indexing API:** Optional submission for pages that meet Google's documented JobPosting or eligible livestream requirements; it is disabled by default and does not guarantee indexing.
-- **LLM indexing:** chatgpt, Claude, Gemini, perplexity, and other chatbots
-
+Get your website indexed by Google, Bing, ChatGPT, and other search/answer engines.
+- **IndexNow Integration:** Instantly notifies Bing, Yandex, and Seznam whenever you publish, update, or delete content.
 - **Indexing Dashboard:** View submission logs, daily quota usage, and response statuses.
 
 ---
 
 ## 5. Technical SEO & Server Tools
 
-- **Redirect Manager:** Set up 301 (permanent), 302 (temporary), and 307 redirects with full support for regular expressions (Regex).
+- **Redirect Manager:** Set up 301 (permanent), 302 (temporary), and 307 redirects with full support for regular expressions (Regex) via Laravel middleware.
 - **404 Error Monitor:** Automatically logs missing pages that visitors or bots try to open. See the URL, hit count, referrer, and turn any 404 into a 301 redirect with one click.
-- **Robots.txt Editor:** Holvek adds its sitemap and AI crawler rules to the robots.txt file already generated by the host platform or other plugins/packages. A custom document replaces that file only after you confirm the replacement.
-- **.htaccess Editor:** Optional Apache tool, off until an administrator turns it on. Redirects and robots.txt stay on their own screens. Backups are stored privately, and the editor does not run when WordPress file editing is disabled. Nginx does not read `.htaccess`.
+- **Robots.txt Editor:** Holvek generates a dynamic robots.txt file for your application to guide crawlers.
 - **Favicon & Icon Checker:** Checks that your site has the required icons for browser tabs, mobile bookmarks, and web apps.
 
 ---
@@ -75,8 +71,8 @@ Get your website indexed by Google, Bing, ChatGPT, X, and other search engines.
 ## 7. Link Health & Broken Link Monitoring
 
 - **Internal Link Index:** Maps all internal links across your site into an organized table to analyze site architecture.
-- **Orphaned Content Finder:** Detects published posts and pages that have zero incoming internal links, helping you find and fix neglected content.
-- **Broken Link Checker:** Scans your published content for broken internal and external links in small batches, showing HTTP error codes and letting you re-check or fix them.
+- **Orphaned Content Finder:** Detects published content that has zero incoming internal links.
+- **Broken Link Checker:** Scans your published content via Laravel queued jobs for broken internal and external links in small batches.
 
 ---
 
@@ -84,151 +80,72 @@ Get your website indexed by Google, Bing, ChatGPT, X, and other search engines.
 
 - **Google Search Console Integration:** View search clicks, impressions, click-through rates (CTR), and average rankings right in your dashboard.
 - **Keyword Cannibalization Alert:** Highlights queries where multiple pages on your site compete against each other for the same search term.
-- **Google Analytics 4 (GA4) Reports:** View session trends, top landing pages, and traffic channels without leaving your site.
-- **PageSpeed Insights:** Check mobile and desktop performance scores and Core Web Vitals directly from your dashboard, with results cached for 7 days.
-- **Keyword Rank Tracker:** Add target keywords to track their Google ranking position over time via SerpApi, with 7-day, 30-day, and 90-day history charts.
+- **Google Analytics 4 (GA4) Reports:** View session trends, top landing pages, and traffic channels without leaving your dashboard.
+- **PageSpeed Insights:** Check mobile and desktop performance scores and Core Web Vitals directly from your dashboard.
+- **Keyword Rank Tracker:** Add target keywords to track their Google ranking position over time.
 
 ---
 
 ## 9. Media & Image SEO
 
-- **Image Alt Text Audit:** Identifies all images in your media library that are missing alt text and provides quick links to add them.
-- **Clean Filename Enforcer:** Automatically cleans and renames uploaded media files into lowercase, hyphen-separated filenames for better image search performance.
+- **Image Alt Text Audit:** Identifies all images that are missing alt text.
 - **Image Schema:** Automatically includes image dimensions and metadata in structured data.
 
 ---
 
 ## 10. Privacy & Compliance
 
-- **Cookie Notice:** Built-in first-party notice that records a visitor choice. It does not discover or block third-party scripts and is not a substitute for a consent-management platform.
+- **Cookie Notice:** Built-in first-party notice that records a visitor choice. It is not a substitute for a consent-management platform.
 - **AI Content Disclosure:** Add clear notices when content is generated or assisted by artificial intelligence.
 
 ---
 
 ## 11. User Roles & Team Access
 
-- **Granular SEO Permissions:** Control which user roles (Administrator, Editor, Author, Contributor) can manage redirects, edit meta tags, or view SEO reports.
-- **Audit History Log:** Keeps a clear record of every change made to SEO titles, descriptions, and plugin settings, showing which user made each change and when.
+- **Granular SEO Permissions:** Control access using Laravel Authorization Gates and Policies.
+- **Audit History Log:** Keeps a clear record of every change made to SEO titles, descriptions, and settings in the `holvek_change_logs` table.
 
 ---
 
-## 12. Multisite Support
+## 12. Headless REST API
 
-- Manage SEO settings and verification codes across all sites in a Multisite network from one place.
-
----
-
-## 13. Headless REST API
-
-- Clean REST endpoints (`/holvek/v1/seo/{post_id}` and `/holvek/v1/seo/global`) to read and write SEO data in headless setups (Next.js, Gatsby, Nuxt).
+- Clean REST endpoints to read and write SEO data in headless setups (Next.js, Nuxt, Vue).
 
 ---
 
-## Social media sharing
+## 13. Social media sharing
 
-Easily manage page looks and share share contents on popular social media platforms like in Facebook, X (Twitter), LinkedIn, Instagram, Tiktok.
+Easily manage page looks and share content on popular social media platforms like Facebook, X (Twitter), LinkedIn, Instagram, TikTok.
+
 ---
 
-## 14. Setup Wizard & Competitor Migration
-
-- **Guided Setup:** A simple 3-step setup process to configure site type, social links, and basic defaults in under a minute.
-- **One-Click Migration:** Automatically detects and imports existing titles, descriptions, and settings from:
-  - Yoast SEO
-  - Rank Math
-  - All in One SEO (AIOSEO)
-
-
-### Real-Time Monitoring
+## 14. Real-Time Monitoring & Reporting
 Track SEO, accessibility, performance, and best-practice scores as you work. Every change is measured instantly, helping you tune your site with absolute clarity.
 * Live score updates
 * Performance metrics
 * Accessibility checks
 * Best practices auditing
 
-### Automatic Meta Tags
-Titles, descriptions, keywords, robots rules — everything generated dynamically with automatic fallbacks. Override at any level: route, controller, or resource.
-* Dynamic generation
-* Blade components
-* Route overrides
-* Automatic fallbacks
-
-### OpenGraph & Social Cards
-Ensure perfect social previews without writing a single line of repetitive markup. OG images and Twitter Cards generated on demand.
-* Facebook OpenGraph
-* Twitter Cards
-* LinkedIn
-* Dynamic images
-* Preview generator
-
-### JSON-LD Schema Generator
-Add structured data to your pages to enhance search visibility. Supports Article, Product, FAQ, BreadcrumbList, LocalBusiness, and custom schemas.
-* Rich snippets
-* Product schema
-* FAQ schema
-* Custom schemas
-
-### Route-Level SEO Configuration
-Each route in your application can have bespoke SEO settings. Ideal for SaaS platforms, multi-tenant apps, and anything with dynamic content.
-* Per-route config
-* Mult-tenant support
-* Dynamic parameters
-* Wildcard matching
-
-### Environment-Aware Profiles
-
-Define how SEO behaves on local, staging, and production. Track score variations across deployments.
-
-* Local vs Production
-* Staging safety
-* Deployment tracking
-* Config profiles
-
-### Dashboard Visualization
-
-Parse JSON output into an intuitive dashboard showing health scores, critical issues, performance trends, and per-page breakdowns.
-
 ### Client Reporting
 Generate branded, white-label reports with executive summaries and actionable recommendations.
-
-### API & Webhooks
-
-Adjust SEO data programmatically using the REST API, or sync changes across your ecosystem through real-time webhooks.
-* REST API access
-* Real-time webhooks
-* Programmatic updates
-* Integration events
 
 ### Technical SEO Analysis
 23 metadata issues, 38 Core Web Vitals, content quality, structured data validation (JSON-LD, Microdata, RDFa), link analysis, security headers, mobile optimization, and i18n.
 
 #### Core Web Vitals: 
-* Largest Contentful Paint (LCP), 
-* Interaction to Next Paint (INP), and 
-* Cumulative Layout Shift (CLS).
-#### Semantic HTML & Accessibility: 
-* Clear use of headings, 
-* alt text, and 
-* accessible design supports both user experience and crawling.
-Clean URLs & Routing: 
-* RESTful routes and meaningful slugs.
-#### Structured Data & Schema Markup: 
-### Multilingual Architecture: 
-hreflang and locale management are crucial for international SEO.
-#### Security (HTTPS): 
-Now a must-have. 
-
+* Largest Contentful Paint (LCP)
+* Interaction to Next Paint (INP)
+* Cumulative Layout Shift (CLS)
 
 ### Multiple Output Formats
-JSON, JSONL, XML, CSV, CSV Flat, HTML folder with interactive navigation, and individual JSON files per page. Fully customizable HTML reports with your branding.
-
+JSON, JSONL, XML, CSV, HTML folder with interactive navigation, and individual JSON files per page. Fully customizable HTML reports with your branding.
 
 ### Discovery Check - /scan
 Free Holvek Discovery Scan when run from any supported client provides:
-* basic visibility snapshot
-* technical discovery score
+* Basic visibility snapshot
+* Technical discovery score
 * AI mention check
 * Google presence
-* entity consistency
-* competitor comparison
-* 3 major opportunities
-Then a connect button to Unlock the full Discovery Intelligence report
+* Entity consistency
+* Competitor comparison
+* Top opportunities

@@ -610,7 +610,7 @@ Architecture should evolve from demonstrated requirements.
 
 Do not build:
 
-* plugin systems;
+* extension systems;
 * event buses;
 * strategy factories;
 * provider registries;

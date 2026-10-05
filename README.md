@@ -1,13 +1,14 @@
-# Holvek - Visibility & Discovery Intelligence 
-**Holvek** for laravel is a laravel-native visibility and discovery intelligence toolkit that help businesses understand their visibility across discovery surfaces (search engines, social media, answer engines, maps, directories, etc) and help them act. 
+# Holvek - Visibility & Discovery Intelligence
 
-This toolkit is available for free with search engines (SEO), generative engines (GEO), its optimized to compete excellently with paid versions of your favourite SEO tool. Identify critical technical SEO issues and improve your website's health, performance and discoverability with Automated Lighthouse audits, real-time monitoring, and actionable insights.
+**Holvek** is a Laravel-native visibility and discovery intelligence toolkit that helps businesses understand their visibility across discovery surfaces (search engines, social media, answer engines, maps, directories, etc.) and helps them take action.
 
-The holvek cloud connected tier give you monumental intelligence and hands you quick fix to improve your brand discoverability everywhere your audience are.
+This toolkit provides powerful Search Engine Optimization (SEO) and Generative Engine Optimization (GEO) capabilities, optimized to compete excellently with paid versions of your favorite SEO tools. Identify critical technical SEO issues and improve your website's health, performance, and discoverability with automated audits, real-time monitoring, and actionable insights.
 
-Holvek operates via a highly optimized React interface and communicates exclusively through secure REST endpoints.
+The Holvek Cloud-connected tier gives you monumental intelligence and hands you quick fixes to improve your brand discoverability wherever your audience is.
 
-## Holvek Dashboard
+Holvek operates via a highly optimized React SPA dashboard and communicates exclusively through secure API endpoints within your Laravel application.
+
+## Core Features
 
 ### Visibility
 * Search visibility
@@ -25,91 +26,80 @@ Holvek operates via a highly optimized React interface and communicates exclusiv
 * Missing signals
 * Competitor observations
 * Search/discovery issues
-* historic intelligence
+* Historic intelligence
 * Recommendations
 
 ### Diagnosis
 * Technical Audit
-* discovery Audit
-* social Audit
-* holscan
+* Discovery Audit
+* Social Audit
+* Holscan
 
 ### Technical SEO
-* Schema
-* Metadata
-* XML/HTML Sitemaps ; News, standard
-* Robots
-* IndexNow
-* Redirects
-* canonical URLs
+* Schema (JSON-LD)
+* Metadata (Title, Description, OpenGraph, Twitter Cards)
+* XML/HTML Sitemaps (News, Standard)
+* Robots.txt & llms.txt
+* IndexNow API integration
+* Redirect management
+* Canonical URLs
 * Indexing controls
 * Internal linking
-* Image SEO
-* Video SEO
+* Image & Video SEO
 * Content/site analysis
 
-### Conections
+### Connections
 * Holvek Cloud
 * Google Search Console
-* Bing Webmaster Tool
-* IndexNow
-* other future integrations
+* Bing Webmaster Tools
+* AI Providers (OpenAI, Anthropic, Ollama)
 
+---
 
 ## Installation & Setup
 
-1. Place in `wp-content/plugins/holvek`.
-2. Run `composer install` to generate autoload mappings for `Holvek\`.
-3. Run `npm run build` to compile the React admin and Gutenberg editor bundles.
-4. Activate the plugin in WordPress.
+1. Install the package via Composer:
+   ```bash
+   composer require holvek/laravel
+   ```
 
-## Authentication
+2. Publish the configuration and assets:
+   ```bash
+   php artisan vendor:publish --tag="holvek-config"
+   php artisan vendor:publish --tag="holvek-assets"
+   ```
 
-Connect site
-→ Holvek issues a site-specific credential
-→ plugin stores it securely
-→ scoped permissions
-→ token rotation/revocation
-→ API rate limits
-→ site-level identification.
+3. Run the database migrations:
+   ```bash
+   php artisan migrate
+   ```
 
+## Authentication & Cloud Connectivity
 
+Connecting your Laravel application to Holvek Cloud operates via a secure handshake:
+1. Connect site via the dashboard.
+2. Holvek Cloud issues a site-specific credential.
+3. The package stores it securely in your database or `.env`.
+4. Scoped permissions apply with token rotation, revocation, and API rate limits.
 
-# Holvek → Laravel implementation
+---
 
-Holvek
-Visibility & Discovery Intelligence for Laravel
+## Architecture Overview
 
-Git repository
-holvek-laravel
+**Git repository:** `holvek-laravel`
+**Package slug:** `holvek`
+**PHP namespace:** `Holvek\Laravel`
 
-Laravel Package slug
-holvek
+```text
+src/
+├── Console/         # Artisan commands (e.g., audits, pruning)
+├── Http/            # Controllers, Middleware, API endpoints
+├── Models/          # Eloquent models (Meta, Redirects, Logs)
+├── Providers/       # Service providers
+├── Services/        # Core logic (Crawler, Schema, Sitemap)
+└── View/            # Blade directives (@holvekHead)
 
-PHP namespace
-Holvek\Laravel
-
-Package/internal identifier
-holvek-laravel
-
-
-src
-│
-├── assets
-│   └── 
-│
-├── core
-│   └── api.holvek.com
-│
-└── Modules
-    │
-    ├── SEO
-    ├── Schema
-    ├── Indexing
-    ├── Search Console
-    ├── Discovery Intelligence
-    ├── Visibility Monitoring
-    ├── Local
-    ├── Competitors
-    └── Holvek Cloud
-    └── * (i.e others)
+resources/
+├── js/              # React SPA dashboard source
+└── views/           # Blade templates
+```
