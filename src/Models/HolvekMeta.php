@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $og_image
  * @property array<string, mixed>|null $social_overrides
  * @property string|null $target_keyword
+ * @property array<string, mixed>|null $custom_schema
  * @property bool $is_cornerstone
  * @property Carbon|null $last_reviewed_at
  * @property Carbon|null $created_at
@@ -39,10 +40,12 @@ class HolvekMeta extends Model
         'target_keyword',
         'is_cornerstone',
         'last_reviewed_at',
+        'custom_schema',
     ];
 
     protected $casts = [
         'social_overrides' => 'array',
+        'custom_schema' => 'array',
         'is_cornerstone' => 'boolean',
         'last_reviewed_at' => 'datetime',
     ];

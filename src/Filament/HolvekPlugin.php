@@ -18,7 +18,13 @@ class HolvekPlugin implements Plugin
     {
         $panel
             ->resources([
-                // Resources\SeoResource::class,
+                Resources\HolvekMetaResource::class,
+                Resources\HolvekRedirectResource::class,
+                Resources\Holvek404LogResource::class,
+                Resources\HolvekAuditLogResource::class,
+            ])
+            ->pages([
+                Pages\IndexingDashboard::class,
             ]);
     }
 

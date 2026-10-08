@@ -45,9 +45,9 @@ class ClientReportGenerator
         if (! View::exists('holvek::reports.client')) {
             return "<html><body><h1>SEO Report for {$url}</h1><pre>".json_encode($data, JSON_PRETTY_PRINT).'</pre></body></html>';
         }
+
         /** @var view-string $viewName */
         $viewName = 'holvek::reports.client';
-
         return View::make($viewName, ['report' => $data])->render();
     }
 
