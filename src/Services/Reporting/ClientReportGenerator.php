@@ -48,6 +48,7 @@ class ClientReportGenerator
 
         /** @var view-string $viewName */
         $viewName = 'holvek::reports.client';
+
         return View::make($viewName, ['report' => $data])->render();
     }
 

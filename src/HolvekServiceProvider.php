@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Holvek\Laravel;
 
+use Holvek\Laravel\Console\Commands\InstallCommand;
 use Holvek\Laravel\Console\Commands\MigrateCompetitorCommand;
 use Holvek\Laravel\Models\HolvekMeta;
 use Holvek\Laravel\Observers\HolvekMetaObserver;
@@ -41,6 +42,7 @@ class HolvekServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 MigrateCompetitorCommand::class,
+                InstallCommand::class,
             ]);
 
             $this->publishes([

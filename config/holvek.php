@@ -5,11 +5,16 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
-    | General Routing & Middleware
+    | UI & Dashboard Settings
     |--------------------------------------------------------------------------
+    | Control how the Holvek dashboard is presented in the host application.
+    | Supported drivers: 'filament', 'standalone', 'headless', 'none'
     */
-    'path' => env('HOLVEK_PATH', 'holvek'),
-    'middleware' => ['web'],
+    'ui' => [
+        'driver' => env('HOLVEK_UI_DRIVER', 'standalone'),
+        'path' => env('HOLVEK_PATH', 'holvek'),
+        'middleware' => ['web'],
+    ],
 
     /*
     |--------------------------------------------------------------------------
