@@ -1,0 +1,1 @@
+O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-6f56ab2fbbc88afecbf1408d5d97b5739ee635953a1cedd22cf8acc97bb0a0ea-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:41:"illuminate\console\concerns\callscommands";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

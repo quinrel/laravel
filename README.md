@@ -1,105 +1,82 @@
-# Holvek - Visibility & Discovery Intelligence
+# Holvek Laravel
 
-**Holvek** is a Laravel-native visibility and discovery intelligence toolkit that helps businesses understand their visibility across discovery surfaces (search engines, social media, answer engines, maps, directories, etc.) and helps them take action.
+An elite, full-suite SEO & technical architecture package for Laravel 11+.
 
-This toolkit provides powerful Search Engine Optimization (SEO) and Generative Engine Optimization (GEO) capabilities, optimized to compete excellently with paid versions of your favorite SEO tools. Identify critical technical SEO issues and improve your website's health, performance, and discoverability with automated audits, real-time monitoring, and actionable insights.
+## Features (v1.0.0)
+- **Local-First SEO Meta:** Fully dynamic `@holvekHead` component, route macros, and automatic canonicals.
+- **On-Page SEO Tools:** Real-time keyword checklist, readability checker, and internal link suggestions.
+- **Sitemaps & Crawling:** Memory-safe streaming XML sitemap generators (supports 1M+ URLs).
+- **Technical SEO Audit:** Broken link checker, 404 monitor, regex-powered redirects, and orphaned content indexer.
+- **AI Generative Writing:** Suggests SEO titles and descriptions using Ollama (local), OpenAI, or Anthropic.
+- **Google Search Console & GA4:** Native integration for URL submission, index monitoring, and traffic reporting natively inside Laravel.
 
-The Holvek Cloud-connected tier gives you monumental intelligence and hands you quick fixes to improve your brand discoverability wherever your audience is.
+## Installation
 
-Holvek operates via a highly optimized React SPA dashboard and communicates exclusively through secure API endpoints within your Laravel application.
+You can install the package via composer:
 
-## Core Features
-
-### Visibility
-* Search visibility
-* AI Visibility
-* Social Visibility
-* Discovery coverage
-* Discovery Monitoring
-* Brand/entity presence
-* Local visibility
-* Search Console signals
-* Indexing status
-
-### Intelligence
-* Visibility opportunities
-* Missing signals
-* Competitor observations
-* Search/discovery issues
-* Historic intelligence
-* Recommendations
-
-### Diagnosis
-* Technical Audit
-* Discovery Audit
-* Social Audit
-* Holscan
-
-### Technical SEO
-* Schema (JSON-LD)
-* Metadata (Title, Description, OpenGraph, Twitter Cards)
-* XML/HTML Sitemaps (News, Standard)
-* Robots.txt & llms.txt
-* IndexNow API integration
-* Redirect management
-* Canonical URLs
-* Indexing controls
-* Internal linking
-* Image & Video SEO
-* Content/site analysis
-
-### Connections
-* Holvek Cloud
-* Google Search Console
-* Bing Webmaster Tools
-* AI Providers (OpenAI, Anthropic, Ollama)
-
----
-
-## Installation & Setup
-
-1. Install the package via Composer:
-   ```bash
-   composer require holvek/laravel
-   ```
-
-2. Publish the configuration and assets:
-   ```bash
-   php artisan vendor:publish --tag="holvek-config"
-   php artisan vendor:publish --tag="holvek-assets"
-   ```
-
-3. Run the database migrations:
-   ```bash
-   php artisan migrate
-   ```
-
-## Authentication & Cloud Connectivity
-
-Connecting your Laravel application to Holvek Cloud operates via a secure handshake:
-1. Connect site via the dashboard.
-2. Holvek Cloud issues a site-specific credential.
-3. The package stores it securely in your database or `.env`.
-4. Scoped permissions apply with token rotation, revocation, and API rate limits.
-
----
-
-## Architecture Overview
-
-**Git repository:** `holvek-laravel`
-**Package slug:** `holvek`
-**PHP namespace:** `Holvek\Laravel`
-
-```text
-src/
-├── Console/         # Artisan commands (e.g., audits, pruning)
-├── Http/            # Controllers, Middleware, API endpoints
-├── Models/          # Eloquent models (Meta, Redirects, Logs)
-├── Providers/       # Service providers
-├── Services/        # Core logic (Crawler, Schema, Sitemap)
-└── View/            # Blade directives (@holvekHead)
-
-resources/
-├── js/              # React SPA dashboard source
-└── views/           # Blade templates
+```bash
+composer require holvek/laravel
 ```
+
+Publish the configuration, assets, and migrations:
+
+```bash
+php artisan vendor:publish --tag="holvek-config"
+php artisan vendor:publish --tag="holvek-migrations"
+```
+
+Run the migrations:
+
+```bash
+php artisan migrate
+```
+
+## Basic Usage
+
+### Configuring Global SEO
+Update your `.env` file with the keys specified in `config/holvek.php`, particularly if you intend to use the AI, Google Analytics, or IndexNow features.
+
+### Route Macros
+Attach SEO metadata natively to any route:
+```php
+Route::get('/about', fn () => view('about'))->seo([
+    'title' => 'About Us',
+    'description' => 'The premier SEO package for Laravel.',
+]);
+```
+
+### Models & Dynamic Metadata
+Implement the `HasHolvekMeta` trait on your Eloquent models:
+```php
+use Holvek\Laravel\Traits\HasHolvekMeta;
+
+class Post extends Model
+{
+    use HasHolvekMeta;
+}
+```
+
+### The Blade Directive
+Inject the compiled SEO headers into your master layout `<head>`:
+```blade
+<head>
+    @holvekHead($model)
+</head>
+```
+
+## Advanced Tooling
+
+### Rank Tracking
+Automatically check SerpApi for your keyword positions:
+```php
+app(\Holvek\Laravel\Services\Tracking\KeywordRankTracker::class)->trackAllKeywords();
+```
+
+### Keyword Cannibalization
+Detect pages competing for the same target keyword natively via SQL aggregation:
+```php
+$duplicates = app(\Holvek\Laravel\Services\Analytics\KeywordCannibalizationDetector::class)->detect();
+```
+
+## Security
+If you discover any security related issues, please email security@holvek.com instead of using the issue tracker.

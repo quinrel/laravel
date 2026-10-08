@@ -1,0 +1,26 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - src/
+        - config/
+        - database/
+    excludePaths:
+        - src/Filament/
+    tmpDir: build/phpstan
+    checkModelProperties: true
+    checkOctaneCompatibility: true
+    ignoreErrors:
+        -
+            message: '#Called .env. outside of the config directory#'
+            path: config/holvek.php
+        -
+            message: '#unknown class Inertia\\Inertia#'
+            path: src/Middleware/InertiaSeoMiddleware.php
+            reportUnmatched: false
+        -
+            message: '#Trait Holvek\\Laravel\\Traits\\HasHolvekMeta is used zero times and is not analysed.#'
+            path: src/Traits/HasHolvekMeta.php
+            reportUnmatched: false

@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Holvek\Laravel\Services\Media;
+
+use Holvek\Laravel\Models\HolvekMeta;
+use Illuminate\Database\Eloquent\Model;
+
+class SpatieMediaLibraryHelper
+{
+    /**
+     * Extracts an OpenGraph image URL from a Spatie Media Library collection.
+     * Use this in an Observer or directly in the controller when saving a model.
+     *
+     * @param  Model  $model  The host application model (e.g. Post)
+     * @param  string  $collectionName  The media collection name
+     * @param  string  $conversionName  Optional conversion name (e.g. 'og-image')
+     */
+    public function extractOgImage(Model $model, string $collectionName = 'default', string $conversionName = ''): ?string
+    {
+        if (! method_exists($model, 'getFirstMediaUrl')) {
+            return null;
+        }
+
+        $url = $model->getFirstMediaUrl($collectionName, $conversionName);
+
+        if (empty($url)) {
+            return null;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Automatically sync the first media item from a collection to the HolvekMeta og_image field.
+     */
+    public function syncToHolvekMeta(Model $model, string $collectionName = 'default', string $conversionName = ''): void
+    {
+        $url = $this->extractOgImage($model, $collectionName, $conversionName);
+
+        if ($url && method_exists($model, 'holvekMeta')) {
+            $meta = $model->holvekMeta()->firstOrCreate([]);
+            if ($meta instanceof HolvekMeta) {
+                $meta->update(['og_image' => $url]);
+            }
+        }
+    }
+}

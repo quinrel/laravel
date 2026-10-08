@@ -1,0 +1,1 @@
+O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-5b4cccb760971d029bf610834128f4ff99c5a4ee2bf8481fb88889adebb01c8f-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:55:"illuminate\view\compilers\concerns\compilesconditionals";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

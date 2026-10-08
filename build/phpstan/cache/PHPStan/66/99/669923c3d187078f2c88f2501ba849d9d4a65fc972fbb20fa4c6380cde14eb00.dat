@@ -1,0 +1,17 @@
+O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:37:"v3-6.73.0.5-dev-master@e4f5f6c-8.2.4-";s:4:"data";a:17:{s:4:"name";s:9:"get_class";s:10:"parameters";a:1:{s:6:"object";a:13:{s:4:"name";s:6:"object";s:7:"default";N;s:4:"type";a:2:{s:5:"class";s:55:"PHPStan\BetterReflection\Reflection\ReflectionNamedType";s:4:"data";a:2:{s:4:"name";s:6:"object";s:12:"isIdentifier";b:1;}}s:10:"isVariadic";b:0;s:5:"byRef";b:0;s:10:"isPromoted";b:0;s:10:"attributes";a:0:{}s:9:"startLine";i:22;s:7:"endLine";i:22;s:11:"startColumn";i:24;s:9:"endColumn";i:37;s:14:"parameterIndex";i:0;s:10:"isOptional";b:0;}}s:16:"returnsReference";b:0;s:10:"returnType";a:2:{s:5:"class";s:55:"PHPStan\BetterReflection\Reflection\ReflectionNamedType";s:4:"data";a:2:{s:4:"name";s:6:"string";s:12:"isIdentifier";b:1;}}s:10:"attributes";a:1:{i:0;a:3:{s:4:"name";s:23:"JetBrains\PhpStorm\Pure";s:10:"isRepeated";b:0;s:9:"arguments";a:0:{}}}s:10:"docComment";s:878:"/**
+ * Returns the name of the class of an object
+ * @link https://php.net/manual/en/function.get-class.php
+ * @param object $object [optional] <p>
+ * The tested object. This parameter may be omitted when inside a class.
+ * </p>
+ * @return string <p>The name of the class of which <i>object</i> is an
+ * instance.
+ * If <i>object</i> is omitted when inside a class, the
+ * name of that class is returned.</p>
+ * @throws \TypeError If get_class is called with anything other than an object, TypeError is
+ * raised. Prior to PHP 8.0.0, an E_WARNING level error was raised.
+ * @throws \Error If get_class is called with anything other than an object, TypeError is raised.
+ * Prior to PHP 8.0.0, an E_WARNING level error was raised. If get_class is called with no arguments
+ * from outside a class, an Error is thrown. Prior to PHP 8.0.0, an E_WARNING level error was
+ * raised.
+ */";s:9:"startLine";i:21;s:7:"endLine";i:24;s:11:"startColumn";i:5;s:9:"endColumn";i:5;s:10:"couldThrow";b:0;s:9:"isClosure";b:0;s:11:"isGenerator";b:0;s:10:"isVariadic";b:0;s:8:"isStatic";b:0;s:9:"namespace";N;s:13:"locatedSource";a:2:{s:5:"class";s:68:"PHPStan\BetterReflection\SourceLocator\Located\InternalLocatedSource";s:4:"data";a:4:{s:4:"name";s:9:"get_class";s:8:"filename";s:29:"phpstorm-stubs:Core/Core.stub";s:13:"extensionName";s:4:"Core";s:9:"aliasName";N;}}}}
