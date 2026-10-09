@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $title
  * @property string|null $description
  * @property string|null $canonical_url
+ * @property array<string, string>|null $hreflang_links
  * @property string|null $robots
  * @property string|null $og_image
  * @property array<string, mixed>|null $social_overrides
@@ -34,6 +35,7 @@ class HolvekMeta extends Model
         'title',
         'description',
         'canonical_url',
+        'hreflang_links',
         'robots',
         'og_image',
         'social_overrides',
@@ -44,6 +46,7 @@ class HolvekMeta extends Model
     ];
 
     protected $casts = [
+        'hreflang_links' => 'array',
         'social_overrides' => 'array',
         'custom_schema' => 'array',
         'is_cornerstone' => 'boolean',

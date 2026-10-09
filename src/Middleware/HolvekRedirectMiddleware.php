@@ -30,7 +30,20 @@ class HolvekRedirectMiddleware
             })->first();
 
         if ($redirect) {
-            return redirect($redirect->target_url, $redirect->status_code);
+            if ($redirect->is_loop) {
+                // Log and ignore to prevent infinite loops, or return 508
+                abort(508, 'Loop Detected');
+            }
+
+            $targetUrl = $redirect->target_url;
+
+            // Flatten chain if it exists
+            if ($redirect->is_chain && ! empty($redirect->chain_details)) {
+                $chain = $redirect->chain_details;
+                $targetUrl = end($chain);
+            }
+
+            return redirect()->to($targetUrl, $redirect->status_code);
         }
 
         // Check regex matches
@@ -42,7 +55,7 @@ class HolvekRedirectMiddleware
             if (preg_match($pattern, $path) || preg_match($pattern, '/'.ltrim($path, '/'))) {
                 $target = preg_replace($pattern, $regexRedirect->target_url, $path);
                 if (is_string($target)) {
-                    return redirect($target, $regexRedirect->status_code);
+                    return redirect()->to($target, $regexRedirect->status_code);
                 }
             }
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Holvek\Laravel;
 
+use Holvek\Laravel\Console\Commands\FetchGscDataCommand;
 use Holvek\Laravel\Console\Commands\InstallCommand;
 use Holvek\Laravel\Console\Commands\MigrateCompetitorCommand;
 use Holvek\Laravel\Models\HolvekMeta;
@@ -12,6 +13,7 @@ use Holvek\Laravel\Services\AI\AiWritingAssistant;
 use Holvek\Laravel\Services\Analytics\KeywordCannibalizationDetector;
 use Holvek\Laravel\Services\Reporting\ClientReportGenerator;
 use Holvek\Laravel\Services\SeoRouteManager;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +45,13 @@ class HolvekServiceProvider extends ServiceProvider
             $this->commands([
                 MigrateCompetitorCommand::class,
                 InstallCommand::class,
+                FetchGscDataCommand::class,
             ]);
+
+            $this->app->booted(function () {
+                $schedule = $this->app->make(Schedule::class);
+                $schedule->command('holvek:fetch-gsc-data')->dailyAt('03:00');
+            });
 
             $this->publishes([
                 __DIR__.'/../config/holvek.php' => config_path('holvek.php'),
@@ -67,6 +75,50 @@ class HolvekServiceProvider extends ServiceProvider
             $expression = $expression ?: 'null';
 
             return "<?php echo app(\Holvek\Laravel\Services\HeadRenderer::class)->render({$expression}); ?>";
+        });
+
+        Blade::directive('holvekRum', function () {
+            $endpoint = route('holvek.api.rum.store');
+            $csrf = '<?php echo csrf_token(); ?>';
+
+            return <<<HTML
+<script type="module">
+  import {onCLS, onINP, onLCP, onTTFB, onFCP} from 'https://unpkg.com/web-vitals@4/dist/web-vitals.attribution.js?module';
+
+  function sendToHolvek(metric) {
+    const body = JSON.stringify({
+        url: window.location.href,
+        metric_name: metric.name,
+        metric_value: metric.value,
+        rating: metric.rating,
+        session_id: metric.id
+    });
+
+    // Use sendBeacon if available, otherwise fallback to fetch
+    if (navigator.sendBeacon) {
+        // Blob needed for application/json type with sendBeacon
+        const blob = new Blob([body], { type: 'application/json' });
+        navigator.sendBeacon('{$endpoint}', blob);
+    } else {
+        fetch('{$endpoint}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{$csrf}'
+            },
+            body: body,
+            keepalive: true
+        });
+    }
+  }
+
+  onCLS(sendToHolvek);
+  onINP(sendToHolvek);
+  onLCP(sendToHolvek);
+  onTTFB(sendToHolvek);
+  onFCP(sendToHolvek);
+</script>
+HTML;
         });
 
         Blade::componentNamespace('Holvek\\Laravel\\View\\Components', 'holvek');

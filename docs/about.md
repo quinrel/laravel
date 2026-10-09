@@ -1,6 +1,6 @@
 # About Holvek
 
-Holvek is an all-in-one search engine optimization (SEO) package for Laravel. It helps website owners, content creators, and businesses make their content easy to find on search engines like Google and Bing, as well as modern AI-powered search tools like ChatGPT, Claude, and Perplexity.
+Holvek is a visiblity and discoverability laravel package for holvek cloud. While it handles all traditional seo capabilities out of the box, it help you to understand where your site is discoverable, and how to improve on your visibilitiy across search, AI answer engines, maps, social media, and other emerging surfaces.
 
 ---
 

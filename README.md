@@ -64,6 +64,24 @@ Inject the compiled SEO headers into your master layout `<head>`:
 </head>
 ```
 
+### Core Web Vitals Telemetry (RUM)
+To collect Real-User Monitoring (RUM) metrics like LCP, INP, and CLS, inject the telemetry directive right before the closing `</body>` tag of your layout:
+```blade
+    @holvekRum
+</body>
+```
+
+### Google Search Console & IndexNow
+To enable IndexNow API pings and Google Search Console data aggregation, ensure your `.env` contains:
+```env
+HOLVEK_INDEXNOW_ENABLED=true
+HOLVEK_INDEXNOW_KEY=your_indexnow_key
+
+# Optional: Path to your Google Service Account JSON for automated metric fetching
+HOLVEK_GSC_SERVICE_ACCOUNT=/path/to/service-account.json
+```
+For Google Search Console, make sure you configure your system's CRON to run Laravel's scheduler, as the `holvek:fetch-gsc-data` command is scheduled to run daily at 03:00.
+
 ## Advanced Tooling
 
 ### Rank Tracking

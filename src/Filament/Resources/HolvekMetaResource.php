@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Holvek\Laravel\Models\HolvekGscMetric;
 use Holvek\Laravel\Models\HolvekMeta;
 
 class HolvekMetaResource extends Resource
@@ -37,6 +38,10 @@ class HolvekMetaResource extends Resource
                 Forms\Components\TextInput::make('canonical_url')
                     ->url()
                     ->maxLength(255),
+                Forms\Components\KeyValue::make('hreflang_links')
+                    ->keyLabel('Locale Code (e.g. en-US)')
+                    ->valueLabel('Localized URL')
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('robots')
                     ->maxLength(255)
                     ->default('index, follow'),
@@ -44,6 +49,42 @@ class HolvekMetaResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('custom_schema')
                     ->columnSpanFull(),
+                Forms\Components\Fieldset::make('Google Search Console (Last 30 Days)')
+                    ->schema([
+                        Forms\Components\Placeholder::make('clicks')
+                            ->content(function ($record) {
+                                if (! $record || ! $record->canonical_url) {
+                                    return 'N/A';
+                                }
+
+                                return HolvekGscMetric::where('url', $record->canonical_url)
+                                    ->where('date', '>=', now()->subDays(30))
+                                    ->sum('clicks') ?: '0';
+                            }),
+                        Forms\Components\Placeholder::make('impressions')
+                            ->content(function ($record) {
+                                if (! $record || ! $record->canonical_url) {
+                                    return 'N/A';
+                                }
+
+                                return HolvekGscMetric::where('url', $record->canonical_url)
+                                    ->where('date', '>=', now()->subDays(30))
+                                    ->sum('impressions') ?: '0';
+                            }),
+                        Forms\Components\Placeholder::make('avg_position')
+                            ->content(function ($record) {
+                                if (! $record || ! $record->canonical_url) {
+                                    return 'N/A';
+                                }
+                                $avg = HolvekGscMetric::where('url', $record->canonical_url)
+                                    ->where('date', '>=', now()->subDays(30))
+                                    ->avg('position');
+
+                                return $avg ? number_format((float) $avg, 2) : 'N/A';
+                            }),
+                    ])
+                    ->columns(3)
+                    ->hidden(fn ($record) => $record === null),
             ]);
     }
 

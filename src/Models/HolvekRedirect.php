@@ -15,6 +15,9 @@ use Illuminate\Support\Carbon;
  * @property bool $is_regex
  * @property bool $is_active
  * @property int $hits
+ * @property bool $is_chain
+ * @property bool $is_loop
+ * @property array<int, string>|null $chain_details
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -29,6 +32,9 @@ class HolvekRedirect extends Model
         'is_regex',
         'is_active',
         'hits',
+        'is_chain',
+        'is_loop',
+        'chain_details',
     ];
 
     protected $casts = [
@@ -36,5 +42,8 @@ class HolvekRedirect extends Model
         'is_regex' => 'boolean',
         'is_active' => 'boolean',
         'hits' => 'integer',
+        'is_chain' => 'boolean',
+        'is_loop' => 'boolean',
+        'chain_details' => 'array',
     ];
 }

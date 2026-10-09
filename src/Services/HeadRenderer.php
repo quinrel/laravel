@@ -37,13 +37,23 @@ class HeadRenderer
         $title = config('app.name');
         $description = '';
         $robots = 'index, follow';
+        $canonical = null;
+        $hreflangs = [];
 
         if ($model && method_exists($model, 'getSeoTitle')) {
             $title = $model->getSeoTitle() ?: $title;
             $description = method_exists($model, 'getSeoDescription') ? $model->getSeoDescription() : '';
 
-            if (isset($model->holvekMeta) && $model->holvekMeta->robots) {
-                $robots = $model->holvekMeta->robots;
+            if (isset($model->holvekMeta)) {
+                if ($model->holvekMeta->robots) {
+                    $robots = $model->holvekMeta->robots;
+                }
+                if ($model->holvekMeta->canonical_url) {
+                    $canonical = $model->holvekMeta->canonical_url;
+                }
+                if (is_array($model->holvekMeta->hreflang_links)) {
+                    $hreflangs = $model->holvekMeta->hreflang_links;
+                }
             }
         }
 
@@ -58,6 +68,14 @@ class HeadRenderer
             sprintf('<meta name="twitter:title" content="%s">', e($title)),
             sprintf('<meta name="twitter:description" content="%s">', e((string) $description)),
         ];
+
+        if ($canonical) {
+            $html[] = sprintf('<link rel="canonical" href="%s">', e($canonical));
+        }
+
+        foreach ($hreflangs as $locale => $url) {
+            $html[] = sprintf('<link rel="alternate" hreflang="%s" href="%s">', e($locale), e($url));
+        }
 
         return implode("\n", $html);
     }

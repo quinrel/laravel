@@ -40,8 +40,41 @@ return [
         'webhook_secret' => env('HOLVEK_WEBHOOK_SECRET'),
         'google_pagespeed_key' => env('HOLVEK_PAGESPEED_KEY'),
         'serpapi_key' => env('HOLVEK_SERPAPI_KEY'),
-        'indexnow_key' => env('HOLVEK_INDEXNOW_KEY'),
         'google_oauth_token' => env('HOLVEK_GOOGLE_OAUTH_TOKEN'),
+        'gsc_service_account' => env('HOLVEK_GSC_SERVICE_ACCOUNT'), // path to json or json string
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Google Search Console Settings
+    |--------------------------------------------------------------------------
+    */
+    'gsc' => [
+        'site_url' => env('HOLVEK_GSC_SITE_URL', env('APP_URL')),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Google Indexing API Settings
+    |--------------------------------------------------------------------------
+    */
+    'google_indexing' => [
+        'enabled' => env('HOLVEK_GOOGLE_INDEXING_ENABLED', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | IndexNow Settings
+    |--------------------------------------------------------------------------
+    */
+    'indexnow' => [
+        'enabled' => env('HOLVEK_INDEXNOW_ENABLED', false),
+        'key' => env('HOLVEK_INDEXNOW_KEY'),
+        'search_engines' => [
+            'api.indexnow.org',
+            'www.bing.com',
+            'yandex.com',
+        ],
     ],
 
     /*

@@ -24,3 +24,10 @@ Route::prefix(config('holvek.ui.path', config('holvek.path', 'holvek')))
             })->where('view', '(.*)')->name('holvek.dashboard');
         }
     });
+
+if (config('holvek.indexnow.enabled') && config('holvek.indexnow.key')) {
+    Route::get('/'.config('holvek.indexnow.key').'.txt', function () {
+        return response(config('holvek.indexnow.key'), 200)
+            ->header('Content-Type', 'text/plain');
+    });
+}

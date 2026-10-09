@@ -25,6 +25,10 @@ class HolvekPlugin implements Plugin
             ])
             ->pages([
                 Pages\IndexingDashboard::class,
+            ])
+            ->widgets([
+                Widgets\GscPerformanceWidget::class,
+                Widgets\RumPerformanceWidget::class,
             ]);
     }
 

@@ -1,0 +1,1 @@
+O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-834d98c292acb8938ef33b8124e307b8c4319494ff688e1869c09c4460972d40-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:35:"illuminate\console\scheduling\event";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

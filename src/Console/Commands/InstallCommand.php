@@ -29,12 +29,33 @@ class InstallCommand extends Command
             $this->callSilent('vendor:publish', ['--tag' => 'holvek-migrations']);
         });
 
-        // 3. Detect UI Stack
+        // 3. Generate IndexNow Key
+        $this->components->task('Generating IndexNow key', function () {
+            $this->generateIndexNowKey();
+        });
+
+        // 4. Detect UI Stack
         $this->detectAndConfigureUi();
 
         $this->components->info('Holvek installation complete! Run `php artisan migrate` to build tables.');
 
         return self::SUCCESS;
+    }
+
+    protected function generateIndexNowKey(): void
+    {
+        $path = app()->environmentFilePath();
+        if (! File::exists($path)) {
+            return;
+        }
+
+        $content = File::get($path);
+        if (str_contains($content, 'HOLVEK_INDEXNOW_KEY=')) {
+            return; // Already generated
+        }
+
+        $key = bin2hex(random_bytes(16)); // 32 chars
+        $this->updateEnvironmentFile('HOLVEK_INDEXNOW_KEY', $key);
     }
 
     protected function detectAndConfigureUi(): void
@@ -74,7 +95,7 @@ class InstallCommand extends Command
         }
 
         $content = File::get($path);
-        
+
         // preg_replace can return null on error
         $newContent = $content;
 

@@ -11,8 +11,6 @@ class GscClient
 {
     private string $searchConsoleApiUrl = 'https://searchconsole.googleapis.com/webmasters/v3';
 
-    private string $indexingApiUrl = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
-
     public function __construct(
         protected GoogleAlgorithmUpdates $algorithmUpdates
     ) {}
@@ -25,29 +23,6 @@ class GscClient
     protected function getSiteUrl(): string
     {
         return urlencode((string) config('app.url'));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function submitUrl(string $url, string $type = 'URL_UPDATED'): array
-    {
-        $token = $this->getToken();
-        if (! $token) {
-            return [];
-        }
-
-        /** @var Response $response */
-        $response = Http::withToken($token)
-            ->timeout(15)
-            ->post($this->indexingApiUrl, [
-                'url' => $url,
-                'type' => $type,
-            ]);
-
-        $json = $response->json();
-
-        return is_array($json) ? $json : [];
     }
 
     /**

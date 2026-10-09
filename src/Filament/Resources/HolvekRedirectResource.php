@@ -28,7 +28,8 @@ class HolvekRedirectResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('target_url')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->notIn([fn (Forms\Get $get) => $get('source_url')]),
                 Forms\Components\Select::make('status_code')
                     ->options([
                         '301' => '301 - Permanent',
@@ -54,6 +55,18 @@ class HolvekRedirectResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status_code')
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_chain')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-exclamation-triangle')
+                    ->trueColor('warning')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->falseColor('success'),
+                Tables\Columns\IconColumn::make('is_loop')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-x-circle')
+                    ->trueColor('danger')
+                    ->falseIcon('')
+                    ->falseColor(''),
                 Tables\Columns\IconColumn::make('is_regex')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('is_active')
@@ -68,6 +81,21 @@ class HolvekRedirectResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('flatten_chain')
+                    ->label('Flatten Chain')
+                    ->icon('heroicon-o-arrows-pointing-in')
+                    ->color('success')
+                    ->visible(fn (HolvekRedirect $record): bool => $record->is_chain && ! $record->is_loop)
+                    ->action(function (HolvekRedirect $record) {
+                        if (is_array($record->chain_details) && ! empty($record->chain_details)) {
+                            $target = end($record->chain_details);
+                            $record->update([
+                                'target_url' => $target,
+                                'is_chain' => false,
+                                'chain_details' => null,
+                            ]);
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -54,14 +54,14 @@ class SitemapGenerator
                     $handle = fopen($path, 'w');
                     if ($handle) {
                         fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL);
-                        fwrite($handle, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.PHP_EOL);
+                        fwrite($handle, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'.PHP_EOL);
                         $handles[$monthKey] = $handle;
                         $monthlyCounts[$monthKey] = 0;
                     }
                 }
 
                 if (isset($handles[$monthKey])) {
-                    $urlNode = $this->buildUrlNode((string) $meta->canonical_url, $date);
+                    $urlNode = $this->buildUrlNode((string) $meta->canonical_url, $date, is_array($meta->hreflang_links) ? $meta->hreflang_links : []);
                     fwrite($handles[$monthKey], $urlNode);
                     $monthlyCounts[$monthKey]++;
                 }
@@ -86,18 +86,25 @@ class SitemapGenerator
         }
     }
 
-    protected function buildUrlNode(string $url, Carbon $updatedAt): string
+    /**
+     * @param  array<string, string>  $hreflangs
+     */
+    protected function buildUrlNode(string $url, Carbon $updatedAt, array $hreflangs = []): string
     {
         $loc = htmlspecialchars($url, ENT_XML1, 'UTF-8');
         $lastmod = $updatedAt->toAtomString();
 
-        return <<<XML
-    <url>
-        <loc>{$loc}</loc>
-        <lastmod>{$lastmod}</lastmod>
-    </url>
+        $node = "    <url>\n        <loc>{$loc}</loc>\n        <lastmod>{$lastmod}</lastmod>\n";
 
-XML;
+        foreach ($hreflangs as $locale => $href) {
+            $hrefEscaped = htmlspecialchars($href, ENT_XML1, 'UTF-8');
+            $localeEscaped = htmlspecialchars($locale, ENT_XML1, 'UTF-8');
+            $node .= "        <xhtml:link rel=\"alternate\" hreflang=\"{$localeEscaped}\" href=\"{$hrefEscaped}\" />\n";
+        }
+
+        $node .= "    </url>\n";
+
+        return $node;
     }
 
     /**
