@@ -1,1 +1,0 @@
-O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-f25e995d1416b7e2ade23e373eb7fb506922dab36cd9916ba69bd986895b3939-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:26:"illuminate\auth\tokenguard";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

@@ -16,9 +16,9 @@ export default function ContentEditor() {
         const analyze = async () => {
             setIsAnalyzing(true);
             try {
-                // Determine the base path from config or assume /holvek/api/analyze
+                // Determine the base path from config or assume /quinrel/api/analyze
                 // In a real implementation we would pass the base URL as a prop from Blade
-                const response = await fetch('/holvek/api/analyze', {
+                const response = await fetch('/quinrel/api/analyze', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

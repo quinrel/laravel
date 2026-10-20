@@ -2,16 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Indexing;
+namespace Quinrel\Laravel\Services\Indexing;
 
-use Holvek\Laravel\Models\HolvekIndexingLog;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Quinrel\Laravel\Models\QuinrelIndexingLog;
+use Quinrel\Laravel\Services\GoogleSearchConsoleService;
 
 class GoogleIndexingService
 {
     private string $endpoint = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+
+    public function __construct(
+        protected ?GoogleSearchConsoleService $gscService = null
+    ) {
+        $this->gscService ??= app(GoogleSearchConsoleService::class);
+    }
 
     /**
      * Submit a URL to Google Indexing API.
@@ -21,14 +28,14 @@ class GoogleIndexingService
      */
     public function submitUrl(string $url, string $type = 'URL_UPDATED'): bool
     {
-        if (! config('holvek.google_indexing.enabled')) {
+        if (! config('quinrel.google_indexing.enabled')) {
             return false;
         }
 
-        $token = config('holvek.api.google_oauth_token');
+        $token = $this->gscService?->resolveAccessToken('https://www.googleapis.com/auth/indexing');
 
         if (! $token) {
-            Log::warning('Google Indexing API is enabled but no OAuth token is configured (HOLVEK_GOOGLE_OAUTH_TOKEN).');
+            Log::warning('Google Indexing API is enabled but no OAuth token or Service Account is configured.');
 
             return false;
         }
@@ -42,17 +49,16 @@ class GoogleIndexingService
                     'type' => $type,
                 ]);
 
-            HolvekIndexingLog::create([
+            QuinrelIndexingLog::create([
                 'url' => $url,
                 'engine' => 'google',
                 'status_code' => $response->status(),
-                'response' => $response->json() ?: [],
+                'response' => is_array($response->json()) ? $response->json() : [],
             ]);
 
             if ($response->failed()) {
                 Log::warning("Google Indexing API submission failed for {$url}", [
                     'status' => $response->status(),
-                    'body' => $response->body(),
                 ]);
 
                 return false;
@@ -62,7 +68,7 @@ class GoogleIndexingService
         } catch (\Exception $e) {
             Log::error("Google Indexing API request exception for {$url}: ".$e->getMessage());
 
-            HolvekIndexingLog::create([
+            QuinrelIndexingLog::create([
                 'url' => $url,
                 'engine' => 'google',
                 'status_code' => 500,

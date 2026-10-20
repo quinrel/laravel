@@ -1,13 +1,13 @@
 {
-    "name": "holvek/laravel",
+    "name": "quinrel/laravel",
     "description": "Advanced SEO, Metadata, and AEO toolkit for modern Laravel applications.",
     "keywords": ["laravel", "seo", "metadata", "sitemap", "schema", "aeo"],
     "license": "MIT",
     "type": "library",
     "authors": [
         {
-            "name": "Holvek Team",
-            "email": "hello@holvek.com"
+            "name": "Quinrel Team",
+            "email": "hello@quinrel.com"
         }
     ],
     "require": {
@@ -26,21 +26,21 @@
     },
     "autoload": {
         "psr-4": {
-            "Holvek\\Laravel\\": "src/"
+            "Quinrel\\Laravel\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Holvek\\Laravel\\Tests\\": "tests/"
+            "Quinrel\\Laravel\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Holvek\\Laravel\\HolvekServiceProvider"
+                "Quinrel\\Laravel\\QuinrelServiceProvider"
             ],
             "aliases": {
-                "Holvek": "Holvek\\Laravel\\Facades\\Holvek"
+                "Quinrel": "Quinrel\\Laravel\\Facades\\Quinrel"
             }
         }
     },

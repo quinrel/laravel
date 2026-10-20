@@ -1,6 +1,6 @@
 @props(['type' => 'assisted'])
 
-<div class="holvek-ai-disclosure" style="background: #f8f9fa; border-left: 4px solid #0d6efd; padding: 12px; margin: 20px 0; font-size: 0.9em; color: #495057;">
+<div class="quinrel-ai-disclosure" style="background: #f8f9fa; border-left: 4px solid #0d6efd; padding: 12px; margin: 20px 0; font-size: 0.9em; color: #495057;">
     <strong>Transparency Notice:</strong>
     @if($type === 'assisted')
         This content was written by a human author with assistance from generative AI tools for research or structuring.

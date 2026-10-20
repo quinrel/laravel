@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Models\HolvekMeta;
-use Holvek\Laravel\Services\Sitemaps\SitemapGenerator;
-use Holvek\Laravel\Tests\TestCase;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Storage;
+use Quinrel\Laravel\Models\QuinrelMeta;
+use Quinrel\Laravel\Services\Sitemaps\SitemapGenerator;
+use Quinrel\Laravel\Tests\TestCase;
 
 class SitemapGeneratorTest extends TestCase
 {
@@ -16,7 +16,7 @@ class SitemapGeneratorTest extends TestCase
     {
         Storage::fake('public');
 
-        HolvekMeta::forceCreate([
+        QuinrelMeta::forceCreate([
             'model_type' => User::class,
             'model_id' => 1,
             'canonical_url' => 'https://example.com/p1',

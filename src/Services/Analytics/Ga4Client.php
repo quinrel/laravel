@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Analytics;
+namespace Quinrel\Laravel\Services\Analytics;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
@@ -41,14 +41,14 @@ class Ga4Client
      */
     protected function runReport(array $body): array
     {
-        $propertyId = config('holvek.analytics.ga4_property_id');
-        $token = config('holvek.analytics.ga4_access_token'); // Expected to be provided by host app or OAuth
+        $propertyId = config('quinrel.analytics.ga4_property_id');
+        $token = config('quinrel.analytics.ga4_access_token'); // Expected to be provided by host app or OAuth
 
         if (! $propertyId || ! $token) {
             return [];
         }
 
-        $cacheKey = 'holvek.ga4.'.md5(json_encode($body) ?: '');
+        $cacheKey = 'quinrel.ga4.'.md5(json_encode($body) ?: '');
 
         return Cache::remember($cacheKey, now()->addHours(6), function () use ($propertyId, $token, $body) {
             /** @var Response $response */

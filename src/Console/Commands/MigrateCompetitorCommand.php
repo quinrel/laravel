@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Console\Commands;
+namespace Quinrel\Laravel\Console\Commands;
 
-use Holvek\Laravel\Services\Migration\MigrationService;
 use Illuminate\Console\Command;
+use Quinrel\Laravel\Services\Migration\MigrationService;
 
 class MigrateCompetitorCommand extends Command
 {
-    protected $signature = 'holvek:migrate-competitor {package? : The competitor package to migrate from}';
+    protected $signature = 'quinrel:migrate-competitor {package? : The competitor package to migrate from}';
 
     protected $description = 'Migrate SEO metadata from a competitor package.';
 

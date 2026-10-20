@@ -1,1 +1,0 @@
-O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-3efc27fd2ae77e7f61e4a01c96af7e6e9087a1de6f4dba8b21065231961c9865-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:46:"illuminate\database\eloquent\relations\morphto";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

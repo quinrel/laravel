@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Indexing;
+namespace Quinrel\Laravel\Services\Indexing;
 
-use Holvek\Laravel\Models\HolvekIndexingLog;
+use Quinrel\Laravel\Models\QuinrelIndexingLog;
 
 class LlmIndexingPinger
 {
@@ -19,7 +19,7 @@ class LlmIndexingPinger
         // We log the intent to index via LLM.
 
         foreach ($urls as $url) {
-            HolvekIndexingLog::create([
+            QuinrelIndexingLog::create([
                 'url' => $url,
                 'engine' => 'llm',
                 'status_code' => 200,

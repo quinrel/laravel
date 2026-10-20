@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Jobs\DetectRedirectChains;
-use Holvek\Laravel\Models\HolvekRedirect;
-use Holvek\Laravel\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Quinrel\Laravel\Jobs\DetectRedirectChains;
+use Quinrel\Laravel\Models\QuinrelRedirect;
+use Quinrel\Laravel\Tests\TestCase;
 
 class DetectRedirectChainsTest extends TestCase
 {
@@ -15,13 +15,13 @@ class DetectRedirectChainsTest extends TestCase
 
     public function test_detects_redirect_chains_and_marks_them_appropriately(): void
     {
-        $r1 = HolvekRedirect::create([
+        $r1 = QuinrelRedirect::create([
             'source_url' => '/old-a',
             'target_url' => '/old-b',
             'status_code' => 301,
         ]);
 
-        $r2 = HolvekRedirect::create([
+        $r2 = QuinrelRedirect::create([
             'source_url' => '/old-b',
             'target_url' => '/new-c',
             'status_code' => 301,
@@ -41,13 +41,13 @@ class DetectRedirectChainsTest extends TestCase
 
     public function test_detects_infinite_redirect_loops_and_marks_them_appropriately(): void
     {
-        $r1 = HolvekRedirect::create([
+        $r1 = QuinrelRedirect::create([
             'source_url' => '/loop-a',
             'target_url' => '/loop-b',
             'status_code' => 301,
         ]);
 
-        $r2 = HolvekRedirect::create([
+        $r2 = QuinrelRedirect::create([
             'source_url' => '/loop-b',
             'target_url' => '/loop-a',
             'status_code' => 301,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Analysis;
+namespace Quinrel\Laravel\Services\Analysis;
 
 class SeoChecklist
 {

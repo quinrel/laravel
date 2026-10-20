@@ -1,6 +1,6 @@
-# Holvek Product Roadmap
+# Quinrel Product Roadmap
 
-This document outlines planned and upcoming features for Holvek that are not yet implemented in the current plugin release.
+This document outlines planned and upcoming features for Quinrel that are not yet implemented in the current release.
 
 ---
 
@@ -24,7 +24,7 @@ This document outlines planned and upcoming features for Holvek that are not yet
 
 - **Inline SEO Comments:** Leave notes and recommendations on specific headings, titles, or paragraphs for other writers and editors to review.
 - **Publish Gating:** Optionally prevent articles from being published until all required SEO checklist items and editorial comments are resolved.
-- **SEO Sign-Off Column:** Track which articles have received final SEO approval directly in the WordPress posts list.
+- **SEO Sign-Off Column:** Track which articles have received final SEO approval directly in the application posts list.
 
 ---
 
@@ -37,7 +37,7 @@ This document outlines planned and upcoming features for Holvek that are not yet
 
 ## 5. Cloud-Based Broken Link Crawler
 
-- **High-Volume Scanning:** Scan enterprise websites with tens of thousands of pages using an off-site cloud crawler that does not consume server memory or slow down WordPress.
+- **High-Volume Scanning:** Scan enterprise websites with tens of thousands of pages using an off-site cloud crawler that does not consume server memory or slow down your application.
 - **Scheduled Crawls:** Automatic weekly or monthly crawl reports with exportable CSV spreadsheets.
 
 ---
@@ -46,7 +46,7 @@ This document outlines planned and upcoming features for Holvek that are not yet
 
 - **Client-Facing Summary:** A clean, simplified web portal for clients to see their site's SEO health, ranking progress, and traffic trends.
 - **Automated PDF Reports:** Generate branded, monthly PDF summaries for clients and stakeholders with one click.
-- **Custom Branding:** Replace plugin branding with your agency's logo and color scheme.
+- **Custom Branding:** Replace package branding with your agency's logo and color scheme.
 
 ---
 
@@ -66,4 +66,4 @@ This document outlines planned and upcoming features for Holvek that are not yet
 
 ## 9. Framework-Agnostic PHP Core Package
 
-- **Standalone Composer Package:** Separate the core SEO calculation engine (meta tag rules, sitemap generation, schema models) into a standalone PHP package for use in Laravel, Symfony, or headless Node.js backends.
+- **Standalone Composer Package:** Separate the core SEO calculation engine (meta tag rules, sitemap generation, schema models) into a standalone PHP package for use across modern PHP applications and headless setups.

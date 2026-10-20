@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Models\HolvekMeta;
-use Holvek\Laravel\Services\Analytics\KeywordCannibalizationDetector;
-use Holvek\Laravel\Tests\TestCase;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Schema;
+use Quinrel\Laravel\Models\QuinrelMeta;
+use Quinrel\Laravel\Services\Analytics\KeywordCannibalizationDetector;
+use Quinrel\Laravel\Tests\TestCase;
 
 class KeywordCannibalizationDetectorTest extends TestCase
 {
@@ -26,19 +26,19 @@ class KeywordCannibalizationDetectorTest extends TestCase
 
     public function test_it_detects_duplicate_target_keywords(): void
     {
-        HolvekMeta::forceCreate([
+        QuinrelMeta::forceCreate([
             'model_type' => User::class,
             'model_id' => 1,
             'target_keyword' => 'seo optimization',
         ]);
 
-        HolvekMeta::forceCreate([
+        QuinrelMeta::forceCreate([
             'model_type' => User::class,
             'model_id' => 2,
             'target_keyword' => 'seo optimization',
         ]);
 
-        HolvekMeta::forceCreate([
+        QuinrelMeta::forceCreate([
             'model_type' => User::class,
             'model_id' => 3,
             'target_keyword' => 'laravel ranking',

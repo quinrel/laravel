@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Analytics;
+namespace Quinrel\Laravel\Services\Analytics;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
@@ -21,10 +21,10 @@ class PageSpeedInsights
      */
     public function fetch(string $url, string $strategy = 'mobile'): array
     {
-        $cacheKey = "holvek.pagespeed.{$strategy}.".md5($url);
+        $cacheKey = "quinrel.pagespeed.{$strategy}.".md5($url);
 
         return Cache::remember($cacheKey, now()->addDays(7), function () use ($url, $strategy) {
-            $apiKey = config('holvek.api.google_pagespeed_key');
+            $apiKey = config('quinrel.api.google_pagespeed_key');
 
             $params = [
                 'url' => $url,

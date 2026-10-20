@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Technical;
+namespace Quinrel\Laravel\Services\Technical;
 
 use Illuminate\Support\Facades\Http;
+use Quinrel\Laravel\Support\UrlValidator;
 
 class TechnicalSeoAuditor
 {
@@ -13,6 +14,17 @@ class TechnicalSeoAuditor
      */
     public function auditUrl(string $url): array
     {
+        if (! UrlValidator::isSafe($url)) {
+            $error = ['status' => 'error', 'message' => 'Unsafe or restricted URL blocked by SSRF policy.'];
+
+            return [
+                'favicon' => $error,
+                'https' => $error,
+                'headers' => $error,
+                'hreflang' => $error,
+            ];
+        }
+
         try {
             $response = Http::timeout(5)->get($url);
             $html = $response->body();

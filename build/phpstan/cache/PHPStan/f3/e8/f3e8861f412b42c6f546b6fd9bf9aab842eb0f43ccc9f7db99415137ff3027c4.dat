@@ -1,1 +1,0 @@
-O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-b2ab8d24f04224ab8b4259ae1b803f7b6a1fbc45c3020e9a84e05b6f666a1795-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:55:"illuminate\contracts\container\contextualbindingbuilder";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

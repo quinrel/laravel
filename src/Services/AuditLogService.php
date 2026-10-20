@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services;
+namespace Quinrel\Laravel\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +15,7 @@ class AuditLogService
      */
     public function log(string $event, ?string $modelType = null, ?int $modelId = null, array $oldValues = [], array $newValues = []): void
     {
-        DB::table('holvek_audit_logs')->insert([
+        DB::table('quinrel_audit_logs')->insert([
             'event' => $event,
             'user_id' => Auth::id(),
             'model_type' => $modelType,

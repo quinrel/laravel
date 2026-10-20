@@ -1,1 +1,0 @@
-O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-9db3d6e10d6b776b0fa8f0b68a457303d6e556c57bdde11e1b91224433faf8ac-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:50:"illuminate\console\concerns\promptsformissinginput";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

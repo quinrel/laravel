@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Media;
+namespace Quinrel\Laravel\Services\Media;
 
 class ImageAltTextAuditor
 {

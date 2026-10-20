@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Analysis;
+namespace Quinrel\Laravel\Services\Analysis;
 
-use Holvek\Laravel\Models\HolvekMeta;
+use Quinrel\Laravel\Models\QuinrelMeta;
 
 class InternalLinkSuggester
 {
@@ -13,21 +13,22 @@ class InternalLinkSuggester
      */
     public function suggest(string $content, string $focusKeyword): array
     {
-        if (empty($focusKeyword)) {
+        if (trim($focusKeyword) === '') {
             return [];
         }
 
-        // Search the holvek_meta table for other pages that might be relevant
-        // to the focus keyword, to suggest as internal links.
-        $suggestions = HolvekMeta::query()
-            ->where('title', 'like', '%'.$focusKeyword.'%')
-            ->orWhere('description', 'like', '%'.$focusKeyword.'%')
+        $suggestions = QuinrelMeta::query()
+            ->whereNotNull('canonical_url')
+            ->where(function ($query) use ($focusKeyword) {
+                $query->where('title', 'like', '%'.$focusKeyword.'%')
+                    ->orWhere('description', 'like', '%'.$focusKeyword.'%')
+                    ->orWhere('target_keyword', 'like', '%'.$focusKeyword.'%');
+            })
             ->limit(5)
             ->get(['title', 'canonical_url']);
 
         $results = [];
         foreach ($suggestions as $suggestion) {
-            // Only suggest if it has a canonical URL and it's not already linked in the content
             if (! empty($suggestion->canonical_url) && ! str_contains($content, $suggestion->canonical_url)) {
                 $results[] = [
                     'title' => (string) $suggestion->title,

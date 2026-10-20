@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services;
+namespace Quinrel\Laravel\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -11,32 +11,44 @@ use RuntimeException;
 class GoogleSearchConsoleService
 {
     /**
-     * Get the access token for Google API.
+     * Get the access token for Google APIs (supports both static OAuth tokens and Service Account JWT).
      */
-    public function getAccessToken(): string
+    public function getAccessToken(string $scope = 'https://www.googleapis.com/auth/webmasters.readonly'): string
     {
-        // If a static OAuth token is provided, use it.
-        $staticToken = config('holvek.api.google_oauth_token');
-        if ($staticToken) {
+        $staticToken = config('quinrel.api.google_oauth_token');
+        if (is_string($staticToken) && $staticToken !== '') {
             return $staticToken;
         }
 
-        return Cache::remember('holvek_gsc_access_token', 3000, function () {
-            return $this->fetchTokenFromServiceAccount();
+        $cacheKey = 'quinrel_gsc_access_token_'.md5($scope);
+
+        return (string) Cache::remember($cacheKey, 3000, function () use ($scope) {
+            return $this->fetchTokenFromServiceAccount($scope);
         });
     }
 
-    protected function fetchTokenFromServiceAccount(): string
+    /**
+     * Safely resolve an access token or return null if unconfigured.
+     */
+    public function resolveAccessToken(string $scope = 'https://www.googleapis.com/auth/webmasters'): ?string
     {
-        $serviceAccount = config('holvek.api.gsc_service_account');
+        try {
+            return $this->getAccessToken($scope);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
 
-        if (! $serviceAccount) {
+    protected function fetchTokenFromServiceAccount(string $scope = 'https://www.googleapis.com/auth/webmasters.readonly'): string
+    {
+        $serviceAccount = config('quinrel.api.gsc_service_account');
+
+        if (! is_string($serviceAccount) || $serviceAccount === '') {
             throw new RuntimeException('Google Service Account or OAuth token is not configured for GSC.');
         }
 
         $credentials = $this->parseServiceAccount($serviceAccount);
-
-        $jwt = $this->createJwt($credentials);
+        $jwt = $this->createJwt($credentials, $scope);
 
         $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
             'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
@@ -47,7 +59,7 @@ class GoogleSearchConsoleService
             throw new RuntimeException('Failed to authenticate with Google: '.$response->body());
         }
 
-        return $response->json('access_token');
+        return (string) $response->json('access_token');
     }
 
     /**
@@ -63,7 +75,7 @@ class GoogleSearchConsoleService
 
         $credentials = json_decode((string) $content, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE || ! isset($credentials['private_key'], $credentials['client_email'])) {
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($credentials) || ! isset($credentials['private_key'], $credentials['client_email'])) {
             throw new RuntimeException('Invalid Google Service Account JSON.');
         }
 
@@ -73,13 +85,13 @@ class GoogleSearchConsoleService
     /**
      * @param  array<string, mixed>  $credentials
      */
-    protected function createJwt(array $credentials): string
+    protected function createJwt(array $credentials, string $scope = 'https://www.googleapis.com/auth/webmasters.readonly'): string
     {
         $header = json_encode(['typ' => 'JWT', 'alg' => 'RS256']);
         $now = time();
         $payload = json_encode([
             'iss' => $credentials['client_email'],
-            'scope' => 'https://www.googleapis.com/auth/webmasters.readonly',
+            'scope' => $scope,
             'aud' => 'https://oauth2.googleapis.com/token',
             'exp' => $now + 3600,
             'iat' => $now,
@@ -91,7 +103,7 @@ class GoogleSearchConsoleService
         $signatureInput = $base64UrlHeader.'.'.$base64UrlPayload;
 
         $signature = '';
-        if (! openssl_sign($signatureInput, $signature, $credentials['private_key'], 'SHA256')) {
+        if (! openssl_sign($signatureInput, $signature, (string) $credentials['private_key'], 'SHA256')) {
             throw new RuntimeException('Failed to sign JWT for Google Auth.');
         }
 
@@ -127,6 +139,9 @@ class GoogleSearchConsoleService
             throw new RuntimeException('Failed to fetch GSC analytics: '.$response->body());
         }
 
-        return $response->json('rows') ?? [];
+        /** @var array<int, array<string, mixed>>|null $rows */
+        $rows = $response->json('rows');
+
+        return $rows ?? [];
     }
 }

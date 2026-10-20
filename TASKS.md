@@ -1,12 +1,12 @@
 # Implementation Plan (TASKS.md)
 
-This document outlines the phased execution plan for the `holvek-laravel` package. Each phase is designed to be independently verifiable, incorporating all features outlined in `features.md`, and adheres to the architectural guidelines in `AGENTS.md`.
+This document outlines the phased execution plan for the `quinrel-laravel` package. Each phase is designed to be independently verifiable, incorporating all features outlined in `features.md`, and adheres to the architectural guidelines in `AGENTS.md`.
 
 ## Phase 1: Foundation, Tooling & Setup Wizard 🏗️
 **Goal:** Establish the repository structure, code quality tools, and Laravel package scaffolding.
-- [x] **Local-First Architecture:** Ensure core features function 100% offline without requiring a Holvek Cloud API key.
+- [x] **Local-First Architecture:** Ensure core features function 100% offline without requiring a Quinrel Cloud API key.
 - [x] Initialize `composer.json` with correct Laravel 11/12/13 constraints and code tooling (PHPUnit, Larastan, Pint).
-- [x] Create the core `HolvekServiceProvider` (config, migrations, routes).
+- [x] Create the core `QuinrelServiceProvider` (config, migrations, routes).
 - [x] Scaffold the React SPA dashboard and **Filament / TALL Stack** Resource pages.
 - [x] **Setup Wizard:** Implement a 3-step setup process for site type, social links, and defaults.
 - [x] **Competitor Migration:** Implement 1-click importers for `artesaos/seotools`, `ralphjsmit/laravel-seo`, and `spatie/laravel-seo`.
@@ -15,15 +15,15 @@ This document outlines the phased execution plan for the `holvek-laravel` packag
 
 ## Phase 2: Core Metadata, Social & Head Component 📝
 **Goal:** Define and render SEO metadata, canonicals, and environment profiles.
-- [x] Create the `holvek_meta` database migration and `HasHolvekMeta` trait.
+- [x] Create the `quinrel_meta` database migration and `HasQuinrelMeta` trait.
 - [x] **Route Macros:** Implement `Route::macro('seo', ...)` with **Wildcard matching** support.
-- [x] Develop the `@holvekHead` Blade directive for titles, descriptions, and custom canonicals.
+- [x] Develop the `@quinrelHead` Blade directive for titles, descriptions, and custom canonicals.
 - [x] Implement **Social Media Previews** (Facebook, X, LinkedIn, Instagram, TikTok) and OpenGraph/Twitter Cards.
 - [x] **Environment-Aware Profiles:** Automatically inject `noindex, nofollow` on non-production environments.
 - [x] **Robots Meta Controls:** UI to set `noindex`, `nofollow`, `noarchive`, `nosnippet`, `noimageindex` per page.
 - [x] **Aggressive Caching Layer:** Cache rendered HTML strings and invalidate via Observers.
 - [x] **SPA Native Adapters (Inertia.js & Livewire):** 
-  - *Note to prevent execution drift:* Standard Blade rendering fails on client-side SPA navigation. Build `Holvek::inertia()` and `Holvek::livewire()` middleware to automatically intercept and share `@holvekHead` state with the client-side router, preserving SEO metadata during AJAX navigations.
+  - *Note to prevent execution drift:* Standard Blade rendering fails on client-side SPA navigation. Build `Quinrel::inertia()` and `Quinrel::livewire()` middleware to automatically intercept and share `@quinrelHead` state with the client-side router, preserving SEO metadata during AJAX navigations.
 
 ## Phase 3: Content Editor & UI Tools ✍️
 **Goal:** Provide real-time feedback and assistance during content creation.
@@ -39,7 +39,7 @@ This document outlines the phased execution plan for the `holvek-laravel` packag
   - [x] **Memory-Safe Sitemap Streaming:** *Note to prevent execution drift:* Do not load models into RAM. Use PHP Generators (`yield`) and unbuffered Eloquent queries (`lazy()`) to stream XML directly to disk/S3. This prevents fatal memory exhaustion on datasets exceeding 100,000+ URLs.
 - [x] **News Sitemap:** Generator for `sitemap-news.xml` (last 48 hours).
 - [x] **Video Sitemap:** Generator for `video-sitemap.xml` (extracting embedded videos).
-- [x] **HTML Sitemap:** Create `<x-holvek-sitemap />` Blade component for user-facing navigation.
+- [x] **HTML Sitemap:** Create `<x-quinrel-sitemap />` Blade component for user-facing navigation.
 - [x] **Robots.txt Editor:** Allow safe custom document replacement.
 - [x] **.htaccess Editor:** Optional tool for Apache users to manage redirects/rules.
 - [x] **AI Crawler Guide:** Generate dynamic `llms.txt` and `llms-full.txt` with customizable summaries.
@@ -97,9 +97,9 @@ This document outlines the phased execution plan for the `holvek-laravel` packag
 - [x] **LLM Indexing:** Ping ChatGPT, Claude, Gemini, and Perplexity on updates.
 - [x] **Indexing Dashboard:** View submission logs, daily quota usage, and response statuses.
 
-## Phase 12: Holvek Cloud, Webhooks & REST API ☁️
+## Phase 12: Quinrel Cloud, Webhooks & REST API ☁️
 **Goal:** Cloud offloading, discovery scans, and headless support.
-- [x] **Headless REST API:** Build `/holvek/v1/seo/{post_id}` and `/global` endpoints for Next.js/Nuxt.
+- [x] **Headless REST API:** Build `/quinrel/v1/seo/{post_id}` and `/global` endpoints for Next.js/Nuxt.
 - [x] **Discovery Check (`/scan`):** Free snapshot (technical score, competitor comparison, AI mention check).
 - [x] Cloud API Integration for heavy auditing and Webhook HMAC Security.
 

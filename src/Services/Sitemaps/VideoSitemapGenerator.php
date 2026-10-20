@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Sitemaps;
+namespace Quinrel\Laravel\Services\Sitemaps;
 
-use Holvek\Laravel\Events\GatheringVideoSitemapUrls;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Quinrel\Laravel\Events\GatheringVideoSitemapUrls;
 
 class VideoSitemapGenerator
 {
@@ -15,20 +15,13 @@ class VideoSitemapGenerator
         $event = new GatheringVideoSitemapUrls;
         event($event);
 
-        if (empty($event->videos)) {
-            return; // Don't generate empty video sitemap
+        if ($event->videos === []) {
+            return;
         }
 
         $storage = Storage::disk($disk);
-        $path = $storage->path('video-sitemap.xml');
-
-        $dir = dirname($path);
-        if (! is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $handle = fopen($path, 'w');
-        if (! $handle) {
+        $handle = fopen('php://temp', 'r+');
+        if ($handle === false) {
             return;
         }
 
@@ -42,8 +35,12 @@ class VideoSitemapGenerator
             }
 
             fwrite($handle, '</urlset>'.PHP_EOL);
+            rewind($handle);
+            $storage->put('video-sitemap.xml', $handle);
         } finally {
-            fclose($handle);
+            if (is_resource($handle)) {
+                fclose($handle);
+            }
         }
     }
 

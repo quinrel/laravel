@@ -2,25 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Tracking;
+namespace Quinrel\Laravel\Services\Tracking;
 
 class GscIndexStatus
 {
+    public function __construct(
+        protected ?GscClient $client = null
+    ) {
+        $this->client ??= app(GscClient::class);
+    }
+
     /**
-     * Checks exact index status using the URL Inspection API.
+     * Checks exact index status using the Google Search Console URL Inspection API.
      *
      * @return array<string, mixed>
      */
     public function check(string $url): array
     {
-        // Placeholder for Google Search Console URL Inspection API
-        return [
-            'inspectionResult' => [
-                'indexStatusResult' => [
-                    'verdict' => 'PASS',
-                    'coverageState' => 'Submitted and indexed',
-                ],
-            ],
-        ];
+        return $this->client ? $this->client->inspectUrl($url) : [];
     }
 }

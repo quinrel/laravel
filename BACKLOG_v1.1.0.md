@@ -1,7 +1,7 @@
-# Holvek Laravel - v1.1.0 Engineering Backlog
+# Quinrel Laravel - v1.1.0 Engineering Backlog
 
 ## Overview
-This backlog outlines the advanced, enterprise-grade technical SEO capabilities targeted for the `v1.1.0` release of `holvek-laravel`. The focus is on moving the package from standard technical hygiene (v1.0.0) to an agency/enterprise-level SEO tool.
+This backlog outlines the advanced, enterprise-grade technical SEO capabilities targeted for the `v1.1.0` release of `quinrel-laravel`. The focus is on moving the package from standard technical hygiene (v1.0.0) to an agency/enterprise-level SEO tool.
 
 ---
 
@@ -10,7 +10,7 @@ This backlog outlines the advanced, enterprise-grade technical SEO capabilities 
 
 ### Tasks
 - [x] **Feature: Redirect Chain Detection**
-  - Implement a background job (`DetectRedirectChains`) that periodically traverses the `holvek_redirects` table.
+  - Implement a background job (`DetectRedirectChains`) that periodically traverses the `quinrel_redirects` table.
   - Traverse destinations to ensure A -> B doesn't secretly go B -> C -> D.
   - Flag redirects with a `is_chain` boolean or similar state.
 - [x] **Feature: Infinite Loop Prevention**
@@ -33,7 +33,7 @@ This backlog outlines the advanced, enterprise-grade technical SEO capabilities 
   - Create an `IndexNowService` that sends HTTP POST requests to the IndexNow API endpoints.
   - Support batch URL submissions.
 - [x] **Feature: Eloquent Model Observers**
-  - Hook into model `created`, `updated`, and `deleted` events for models using the `HasHolvekSeo` trait.
+  - Hook into model `created`, `updated`, and `deleted` events for models using the `HasQuinrelMeta` trait.
   - Dispatch a queued job to ping IndexNow when an indexable model changes.
 - [x] **Configuration**
   - Add config flags to enable/disable IndexNow and select target search engines.
@@ -45,7 +45,7 @@ This backlog outlines the advanced, enterprise-grade technical SEO capabilities 
 
 ### Tasks
 - [x] **Feature: Hreflang Meta Tag Generation**
-  - Extend the `HolvekSeo` service to output `<link rel="alternate" hreflang="x" href="y" />` tags.
+  - Extend the `Quinrel` SEO service to output `<link rel="alternate" hreflang="x" href="y" />` tags.
   - Define an interface or configuration convention for host applications to define their locale-to-URL mappings.
 - [x] **Feature: Hreflang Validator (Console/Job)**
   - Validate common Hreflang errors: Missing return tags (if A links to B, B must link to A), invalid ISO language/region codes, missing `x-default`.
@@ -61,13 +61,13 @@ This backlog outlines the advanced, enterprise-grade technical SEO capabilities 
 - [x] **Feature: OAuth / Service Account Setup**
   - Provide configuration structure for Google API credentials (Service Account JSON).
 - [x] **Feature: Data Aggregation Command**
-  - Create an Artisan command (`holvek:fetch-gsc-data`) to run daily via scheduler.
+  - Create an Artisan command (`quinrel:fetch-gsc-data`) to run daily via scheduler.
   - Query the GSC API for site-wide and URL-specific metrics.
 - [x] **Feature: Data Storage & Pruning**
   - Create a lightweight time-series table (or cache strategy) to store daily GSC metrics without bloating the database.
 - [x] **UI Integration**
   - Build a Filament widget for the dashboard showing the 30-day organic performance trend.
-  - Show URL-specific performance data inside the `HolvekMetaResource` edit page.
+  - Show URL-specific performance data inside the `QuinrelMetaResource` edit page.
 
 ---
 
@@ -76,7 +76,7 @@ This backlog outlines the advanced, enterprise-grade technical SEO capabilities 
 
 ### Tasks
 - [x] **Feature: Telemetry Script Injection**
-  - Provide a Blade directive (e.g., `@holvekRum`) that safely injects the standard `web-vitals` JS library.
+  - Provide a Blade directive (e.g., `@quinrelRum`) that safely injects the standard `web-vitals` JS library.
 - [x] **Feature: Ingestion Endpoint**
   - Create a high-throughput, unauthenticated API endpoint (with rate limiting) to receive telemetry beacons from browsers.
 - [x] **Feature: Aggregation & Storage**
@@ -91,4 +91,3 @@ This backlog outlines the advanced, enterprise-grade technical SEO capabilities 
 1. Pick an Epic to begin implementation.
 2. Review architecture for the selected Epic to ensure it aligns with `AGENTS.md` (no unnecessary dependencies, lean implementation).
 3. Execute TDD (Test-Driven Development) for the new features.
-

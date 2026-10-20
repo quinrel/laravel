@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Schema;
+namespace Quinrel\Laravel\Services\Schema;
 
 class SchemaGenerator
 {

@@ -1,4 +1,4 @@
-<div class="holvek-sitemap">
+<div class="quinrel-sitemap">
     <ul>
         @foreach($links as $link)
             @if($link->canonical_url)

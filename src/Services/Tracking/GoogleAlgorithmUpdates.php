@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Tracking;
+namespace Quinrel\Laravel\Services\Tracking;
 
 use Illuminate\Support\Carbon;
 

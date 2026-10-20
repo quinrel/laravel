@@ -2,29 +2,37 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Console\Commands;
+namespace Quinrel\Laravel\Console\Commands;
 
 use Carbon\Carbon;
-use Holvek\Laravel\Models\HolvekGscMetric;
-use Holvek\Laravel\Services\GoogleSearchConsoleService;
 use Illuminate\Console\Command;
+use Quinrel\Laravel\Models\QuinrelGscMetric;
+use Quinrel\Laravel\Services\GoogleSearchConsoleService;
 use Throwable;
 
 class FetchGscDataCommand extends Command
 {
-    protected $signature = 'holvek:fetch-gsc-data {--date= : The date to fetch data for (YYYY-MM-DD)}';
+    protected $signature = 'quinrel:fetch-gsc-data
+                            {--date= : The date to fetch data for (YYYY-MM-DD)}
+                            {--force : Fail if GSC credentials are not configured}';
 
     protected $description = 'Fetch Google Search Console metrics for the site and individual pages';
 
     public function handle(GoogleSearchConsoleService $gscService): int
     {
-        // GSC data usually has a 2-3 day lag. Default to 3 days ago if not specified.
+        $hasCredentials = (bool) (config('quinrel.api.gsc_service_account') || config('quinrel.api.google_oauth_token'));
+        if (! $hasCredentials && ! $this->option('force')) {
+            $this->info('Google Search Console credentials are not configured; skipping fetch.');
+
+            return self::SUCCESS;
+        }
+
         $dateStr = $this->option('date');
         $date = is_string($dateStr) ? Carbon::parse($dateStr)->format('Y-m-d') : Carbon::now()->subDays(3)->format('Y-m-d');
 
-        $siteUrl = config('holvek.gsc.site_url');
-        if (! $siteUrl) {
-            $this->error('GSC site_url is not configured in holvek.gsc.site_url.');
+        $siteUrl = config('quinrel.gsc.site_url');
+        if (! is_string($siteUrl) || $siteUrl === '') {
+            $this->error('GSC site_url is not configured in quinrel.gsc.site_url.');
 
             return self::FAILURE;
         }
@@ -34,9 +42,9 @@ class FetchGscDataCommand extends Command
         try {
             // 1. Site-wide metrics (no dimensions)
             $siteRows = $gscService->queryAnalytics($siteUrl, $date, []);
-            if (! empty($siteRows)) {
+            if ($siteRows !== []) {
                 $siteData = $siteRows[0];
-                HolvekGscMetric::updateOrCreate(
+                QuinrelGscMetric::updateOrCreate(
                     ['url' => null, 'date' => $date],
                     [
                         'clicks' => $siteData['clicks'] ?? 0,
@@ -50,27 +58,38 @@ class FetchGscDataCommand extends Command
                 $this->warn("No site-wide data found for {$date}.");
             }
 
-            // 2. URL-specific metrics (dimension: page)
+            // 2. URL-specific metrics (dimension: page) — batched upsert for O(1) query overhead
             $pageRows = $gscService->queryAnalytics($siteUrl, $date, ['page']);
-            $count = 0;
+            $now = now();
+            $dateForDb = Carbon::parse($date)->startOfDay()->toDateTimeString();
+            $batch = [];
+
             foreach ($pageRows as $row) {
                 if (! isset($row['keys'][0])) {
                     continue;
                 }
 
-                $url = $row['keys'][0];
-                HolvekGscMetric::updateOrCreate(
-                    ['url' => $url, 'date' => $date],
-                    [
-                        'clicks' => $row['clicks'] ?? 0,
-                        'impressions' => $row['impressions'] ?? 0,
-                        'ctr' => $row['ctr'] ?? 0,
-                        'position' => $row['position'] ?? 0,
-                    ]
-                );
-                $count++;
+                $batch[] = [
+                    'url' => (string) $row['keys'][0],
+                    'date' => $dateForDb,
+                    'clicks' => (int) ($row['clicks'] ?? 0),
+                    'impressions' => (int) ($row['impressions'] ?? 0),
+                    'ctr' => (float) ($row['ctr'] ?? 0),
+                    'position' => (float) ($row['position'] ?? 0),
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
             }
 
+            foreach (array_chunk($batch, 500) as $chunk) {
+                QuinrelGscMetric::upsert(
+                    $chunk,
+                    ['url', 'date'],
+                    ['clicks', 'impressions', 'ctr', 'position', 'updated_at']
+                );
+            }
+
+            $count = count($batch);
             $this->info("Updated {$count} URL-specific metrics.");
 
         } catch (Throwable $e) {

@@ -1,6 +1,7 @@
 /vendor
 /node_modules
 /dist
+/build
 /.phpunit.cache
 /coverage
 .DS_Store

@@ -1,13 +1,12 @@
-
-# Holvek Laravel Architecture
+# Quinrel Laravel Architecture
 
 ## 1. Architectural Intent
 
-Holvek Laravel is a Laravel-native integration package.
+Quinrel Laravel is a Laravel-native integration package.
 
 It is not a second Laravel application embedded inside the host application.
 
-Its responsibility is to expose Holvek functionality through APIs that feel natural to Laravel developers while keeping the host application's:
+Its responsibility is to expose Quinrel functionality through APIs that feel natural to Laravel developers while keeping the host application's:
 
 * performance;
 * configuration;
@@ -43,7 +42,7 @@ The architecture follows six principles:
                               │
                               ▼
                      ┌─────────────────┐
-                     │  Holvek Laravel │
+                     │  Quinrel Laravel│
                      │     Package     │
                      └────────┬────────┘
                               │
@@ -59,10 +58,10 @@ The architecture follows six principles:
                  API Client          Cache
                       │
                       ▼
-                 Holvek API
+                 Quinrel API
 ```
 
-The package should not allow arbitrary application code to bypass the defined Holvek boundary.
+The package should not allow arbitrary application code to bypass the defined Quinrel boundary.
 
 ---
 
@@ -75,9 +74,9 @@ The public API is what application developers interact with.
 Examples:
 
 ```php
-Holvek::visibility()
-Holvek::indexing()
-Holvek::citations()
+Quinrel::visibility()
+Quinrel::indexing()
+Quinrel::citations()
 ```
 
 or dependency-injected contracts/services.
@@ -172,7 +171,7 @@ Avoid circular dependencies.
 
 # 9. API Client Boundary
 
-The external Holvek API is an infrastructure boundary.
+The external Quinrel API is an infrastructure boundary.
 
 A typical flow:
 
@@ -187,7 +186,7 @@ API Client
   ↓
 Laravel HTTP Client
   ↓
-Holvek API
+Quinrel API
 ```
 
 The service should not construct raw HTTP requests throughout the codebase.
@@ -246,7 +245,7 @@ The application should not need to understand the internals of the HTTP library.
 Configuration should flow:
 
 ```text
-config/holvek.php
+config/quinrel.php
        ↓
 Service Provider
        ↓
@@ -280,7 +279,7 @@ Persistence is optional.
 
 The package should not introduce a database unless a feature genuinely requires persistent state.
 
-Prefer external API state when the Holvek platform is the system of record.
+Prefer external API state when the Quinrel platform is the system of record.
 
 Use local persistence for things such as:
 
@@ -300,7 +299,7 @@ The architecture must explicitly distinguish:
 
 ### Remote state
 
-Owned by Holvek API.
+Owned by Quinrel API.
 
 Examples:
 
@@ -349,7 +348,7 @@ Cache keys must be:
 Example:
 
 ```text
-holvek:{tenant}:{resource}:{identifier}:{version}
+quinrel:{tenant}:{resource}:{identifier}:{version}
 ```
 
 ---
@@ -358,7 +357,7 @@ holvek:{tenant}:{resource}:{identifier}:{version}
 
 The package must not invent tenancy semantics.
 
-If the host application is multi-tenant, Holvek should integrate with the host application's tenant resolution strategy.
+If the host application is multi-tenant, Quinrel should integrate with the host application's tenant resolution strategy.
 
 Do not assume:
 
@@ -409,7 +408,7 @@ Dispatch Job
    ↓
 Queue
    ↓
-Holvek Service
+Quinrel Service
    ↓
 API
 ```
@@ -425,7 +424,7 @@ Events should represent meaningful domain occurrences.
 Examples:
 
 ```text
-HolvekConnected
+QuinrelConnected
 VisibilityUpdated
 SynchronizationCompleted
 SynchronizationFailed
@@ -444,7 +443,7 @@ Routes are optional.
 If the package exposes routes:
 
 ```text
-/holvek/...
+/quinrel/...
 ```
 
 should be configurable.
@@ -467,7 +466,7 @@ Artisan commands should be thin entry points.
 Example:
 
 ```text
-holvek:sync
+quinrel:sync
        ↓
 SyncService
 ```
@@ -564,7 +563,7 @@ Never introduce:
 ### God Service
 
 ```text
-HolvekManager
+QuinrelManager
 ```
 
 handling everything.

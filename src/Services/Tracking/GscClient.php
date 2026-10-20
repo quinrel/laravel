@@ -2,27 +2,33 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Tracking;
+namespace Quinrel\Laravel\Services\Tracking;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Quinrel\Laravel\Services\GoogleSearchConsoleService;
 
 class GscClient
 {
     private string $searchConsoleApiUrl = 'https://searchconsole.googleapis.com/webmasters/v3';
 
     public function __construct(
-        protected GoogleAlgorithmUpdates $algorithmUpdates
-    ) {}
+        protected GoogleAlgorithmUpdates $algorithmUpdates,
+        protected ?GoogleSearchConsoleService $gscService = null
+    ) {
+        $this->gscService ??= app(GoogleSearchConsoleService::class);
+    }
 
     protected function getToken(): ?string
     {
-        return config('holvek.api.google_oauth_token');
+        return $this->gscService?->resolveAccessToken('https://www.googleapis.com/auth/webmasters');
     }
 
     protected function getSiteUrl(): string
     {
-        return urlencode((string) config('app.url'));
+        $siteUrl = (string) (config('quinrel.gsc.site_url') ?: config('app.url'));
+
+        return urlencode($siteUrl);
     }
 
     /**

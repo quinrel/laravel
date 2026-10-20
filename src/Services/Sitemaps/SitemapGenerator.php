@@ -2,28 +2,25 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Sitemaps;
+namespace Quinrel\Laravel\Services\Sitemaps;
 
-use Holvek\Laravel\Models\HolvekMeta;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Quinrel\Laravel\Models\QuinrelMeta;
 
 class SitemapGenerator
 {
     /**
-     * Generate the sitemaps.
+     * Generate the sitemaps using cloud-compatible stream handles.
      */
     public function generate(string $disk = 'public'): void
     {
         $storage = Storage::disk($disk);
 
-        // We'll chunk sitemaps by month/year of the updated_at date
-        // to keep them manageable and follow the monthly chunking requirement.
-
         /** @var array<string, int> $monthlyCounts */
         $monthlyCounts = [];
 
-        $query = HolvekMeta::query()
+        $query = QuinrelMeta::query()
             ->whereNotNull('canonical_url')
             ->where(function ($q) {
                 $q->whereNull('robots')
@@ -31,28 +28,18 @@ class SitemapGenerator
             })
             ->orderBy('updated_at', 'desc');
 
-        // First pass: distribute URLs into monthly files.
-        // We open file handles for each month as we encounter them.
+        /** @var array<string, resource> $handles */
         $handles = [];
 
         try {
             foreach ($query->lazy() as $meta) {
-                /** @var HolvekMeta $meta */
+                /** @var QuinrelMeta $meta */
                 $date = $meta->updated_at ?? $meta->created_at ?? now();
                 $monthKey = $date->format('Y-m');
 
                 if (! isset($handles[$monthKey])) {
-                    $filename = "sitemap-{$monthKey}.xml";
-                    $path = $storage->path($filename);
-
-                    // Create directory if it doesn't exist (local disk)
-                    $dir = dirname($path);
-                    if (! is_dir($dir)) {
-                        mkdir($dir, 0755, true);
-                    }
-
-                    $handle = fopen($path, 'w');
-                    if ($handle) {
+                    $handle = fopen('php://temp', 'r+');
+                    if ($handle !== false) {
                         fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL);
                         fwrite($handle, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'.PHP_EOL);
                         $handles[$monthKey] = $handle;
@@ -61,19 +48,22 @@ class SitemapGenerator
                 }
 
                 if (isset($handles[$monthKey])) {
-                    $urlNode = $this->buildUrlNode((string) $meta->canonical_url, $date, is_array($meta->hreflang_links) ? $meta->hreflang_links : []);
+                    /** @var array<string, string> $hreflangs */
+                    $hreflangs = is_array($meta->hreflang_links) ? $meta->hreflang_links : [];
+                    $urlNode = $this->buildUrlNode((string) $meta->canonical_url, $date, $hreflangs);
                     fwrite($handles[$monthKey], $urlNode);
                     $monthlyCounts[$monthKey]++;
                 }
             }
 
-            // Close all open handles
             foreach ($handles as $monthKey => $handle) {
                 fwrite($handle, '</urlset>'.PHP_EOL);
+                rewind($handle);
+                $storage->put("sitemap-{$monthKey}.xml", $handle);
                 fclose($handle);
+                unset($handles[$monthKey]);
             }
 
-            // Generate the Sitemap Index
             $this->generateIndex($disk, array_keys($monthlyCounts));
 
         } catch (\Throwable $e) {
@@ -113,33 +103,38 @@ class SitemapGenerator
     protected function generateIndex(string $disk, array $months): void
     {
         $storage = Storage::disk($disk);
-        $path = $storage->path('sitemap.xml');
-
-        $handle = fopen($path, 'w');
-        if (! $handle) {
+        $handle = fopen('php://temp', 'r+');
+        if ($handle === false) {
             return;
         }
 
-        fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL);
-        fwrite($handle, '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.PHP_EOL);
+        try {
+            fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL);
+            fwrite($handle, '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.PHP_EOL);
 
-        $baseUrl = rtrim(config('app.url'), '/');
+            $baseUrl = rtrim((string) config('app.url'), '/');
 
-        foreach ($months as $monthKey) {
-            $sitemapUrl = htmlspecialchars("{$baseUrl}/storage/sitemap-{$monthKey}.xml", ENT_XML1, 'UTF-8');
-            $lastmod = now()->toAtomString();
+            foreach ($months as $monthKey) {
+                $sitemapUrl = htmlspecialchars("{$baseUrl}/storage/sitemap-{$monthKey}.xml", ENT_XML1, 'UTF-8');
+                $lastmod = now()->toAtomString();
 
-            $node = <<<XML
+                $node = <<<XML
     <sitemap>
         <loc>{$sitemapUrl}</loc>
         <lastmod>{$lastmod}</lastmod>
     </sitemap>
 
 XML;
-            fwrite($handle, $node);
-        }
+                fwrite($handle, $node);
+            }
 
-        fwrite($handle, '</sitemapindex>'.PHP_EOL);
-        fclose($handle);
+            fwrite($handle, '</sitemapindex>'.PHP_EOL);
+            rewind($handle);
+            $storage->put('sitemap.xml', $handle);
+        } finally {
+            if (is_resource($handle)) {
+                fclose($handle);
+            }
+        }
     }
 }

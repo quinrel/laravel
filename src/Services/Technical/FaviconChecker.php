@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Technical;
+namespace Quinrel\Laravel\Services\Technical;
 
 use Illuminate\Support\Facades\Http;
 

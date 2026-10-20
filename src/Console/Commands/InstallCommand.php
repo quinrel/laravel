@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Console\Commands;
+namespace Quinrel\Laravel\Console\Commands;
 
 use Filament\Filament;
 use Illuminate\Console\Command;
@@ -11,22 +11,22 @@ use Inertia\Inertia;
 
 class InstallCommand extends Command
 {
-    protected $signature = 'holvek:install';
+    protected $signature = 'quinrel:install';
 
-    protected $description = 'Install and configure the Holvek package';
+    protected $description = 'Install and configure the Quinrel package';
 
     public function handle(): int
     {
-        $this->components->info('Installing Holvek SEO Toolkit...');
+        $this->components->info('Installing Quinrel SEO Toolkit...');
 
         // 1. Publish Configuration
         $this->components->task('Publishing configuration', function () {
-            $this->callSilent('vendor:publish', ['--tag' => 'holvek-config']);
+            $this->callSilent('vendor:publish', ['--tag' => 'quinrel-config']);
         });
 
         // 2. Publish Migrations
         $this->components->task('Publishing migrations', function () {
-            $this->callSilent('vendor:publish', ['--tag' => 'holvek-migrations']);
+            $this->callSilent('vendor:publish', ['--tag' => 'quinrel-migrations']);
         });
 
         // 3. Generate IndexNow Key
@@ -37,7 +37,7 @@ class InstallCommand extends Command
         // 4. Detect UI Stack
         $this->detectAndConfigureUi();
 
-        $this->components->info('Holvek installation complete! Run `php artisan migrate` to build tables.');
+        $this->components->info('Quinrel installation complete! Run `php artisan migrate` to build tables.');
 
         return self::SUCCESS;
     }
@@ -50,12 +50,12 @@ class InstallCommand extends Command
         }
 
         $content = File::get($path);
-        if (str_contains($content, 'HOLVEK_INDEXNOW_KEY=')) {
+        if (str_contains($content, 'QUINREL_INDEXNOW_KEY=')) {
             return; // Already generated
         }
 
         $key = bin2hex(random_bytes(16)); // 32 chars
-        $this->updateEnvironmentFile('HOLVEK_INDEXNOW_KEY', $key);
+        $this->updateEnvironmentFile('QUINREL_INDEXNOW_KEY', $key);
     }
 
     protected function detectAndConfigureUi(): void
@@ -63,26 +63,26 @@ class InstallCommand extends Command
         $driver = 'standalone';
 
         if (class_exists(Filament::class)) {
-            $this->components->info('Filament detected. Configuring Holvek for the TALL stack.');
+            $this->components->info('Filament detected. Configuring Quinrel for the TALL stack.');
             $driver = 'filament';
-            $this->components->warn('Please ensure you register `HolvekPlugin` inside your Filament PanelProvider.');
+            $this->components->warn('Please ensure you register `QuinrelPlugin` inside your Filament PanelProvider.');
         } elseif (class_exists(Inertia::class)) {
             $this->components->info('Inertia.js detected.');
             $choice = $this->choice(
-                'How would you like to integrate the Holvek Dashboard?',
+                'How would you like to integrate the Quinrel Dashboard?',
                 ['Standalone (Telescope-style UI)', 'Headless (API only for custom UI)'],
                 0
             );
             $driver = is_string($choice) && str_starts_with($choice, 'Standalone') ? 'standalone' : 'headless';
         }
 
-        $this->updateEnvironmentFile('HOLVEK_UI_DRIVER', $driver);
+        $this->updateEnvironmentFile('QUINREL_UI_DRIVER', $driver);
 
         if ($driver === 'standalone') {
             $this->components->task('Publishing standalone dashboard assets', function () {
-                $this->callSilent('vendor:publish', ['--tag' => 'holvek-assets', '--force' => true]);
+                $this->callSilent('vendor:publish', ['--tag' => 'quinrel-assets', '--force' => true]);
             });
-            $this->components->info('Standalone dashboard available at: /holvek');
+            $this->components->info('Standalone dashboard available at: /quinrel');
         }
     }
 

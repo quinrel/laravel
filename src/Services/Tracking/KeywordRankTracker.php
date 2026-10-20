@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Tracking;
+namespace Quinrel\Laravel\Services\Tracking;
 
-use Holvek\Laravel\Models\HolvekKeywordRanking;
-use Holvek\Laravel\Models\HolvekMeta;
 use Illuminate\Support\Collection;
+use Quinrel\Laravel\Models\QuinrelKeywordRanking;
+use Quinrel\Laravel\Models\QuinrelMeta;
 
 class KeywordRankTracker
 {
@@ -16,8 +16,8 @@ class KeywordRankTracker
 
     public function trackAllKeywords(): void
     {
-        /** @var Collection<int, HolvekMeta> $metas */
-        $metas = HolvekMeta::whereNotNull('target_keyword')
+        /** @var Collection<int, QuinrelMeta> $metas */
+        $metas = QuinrelMeta::whereNotNull('target_keyword')
             ->whereNotNull('canonical_url')
             ->where('target_keyword', '!=', '')
             ->get()
@@ -34,7 +34,7 @@ class KeywordRankTracker
             if (! empty($result)) {
                 $rank = isset($result['rank']) ? (int) $result['rank'] : null;
 
-                HolvekKeywordRanking::create([
+                QuinrelKeywordRanking::create([
                     'keyword' => $keyword,
                     'url' => $result['url'] ?? $url,
                     'rank' => $rank,
@@ -50,9 +50,9 @@ class KeywordRankTracker
     public function getHistoryCharts(string $keyword): array
     {
         return [
-            '7_days' => HolvekKeywordRanking::where('keyword', $keyword)->forDays(7)->get(),
-            '30_days' => HolvekKeywordRanking::where('keyword', $keyword)->forDays(30)->get(),
-            '90_days' => HolvekKeywordRanking::where('keyword', $keyword)->forDays(90)->get(),
+            '7_days' => QuinrelKeywordRanking::where('keyword', $keyword)->forDays(7)->get(),
+            '30_days' => QuinrelKeywordRanking::where('keyword', $keyword)->forDays(30)->get(),
+            '90_days' => QuinrelKeywordRanking::where('keyword', $keyword)->forDays(90)->get(),
         ];
     }
 }

@@ -1,1 +1,0 @@
-O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-8be011bb132fbdf6e9eed56c049bd6bb31101122af72280bfdd35bba25a064d4-8.2.4";s:4:"data";a:3:{s:7:"classes";a:1:{s:48:"illuminate\http\exceptions\httpresponseexception";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}

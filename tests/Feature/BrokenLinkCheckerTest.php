@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Services\Technical\BrokenLinkChecker;
-use Holvek\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
+use Quinrel\Laravel\Services\Technical\BrokenLinkChecker;
+use Quinrel\Laravel\Tests\TestCase;
 
 class BrokenLinkCheckerTest extends TestCase
 {

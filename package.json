@@ -1,4 +1,5 @@
 {
+    "name": "quinrel-laravel",
     "private": true,
     "type": "module",
     "scripts": {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Indexing;
+namespace Quinrel\Laravel\Services\Indexing;
 
-use Holvek\Laravel\Models\HolvekIndexingLog;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Quinrel\Laravel\Models\QuinrelIndexingLog;
 
 class IndexNowClient
 {
@@ -17,10 +17,10 @@ class IndexNowClient
      */
     public function submit(array $urls): void
     {
-        $key = config('holvek.api.indexnow_key');
+        $key = (string) (config('quinrel.api.indexnow_key') ?: config('quinrel.indexnow.key', ''));
         $host = parse_url((string) config('app.url'), PHP_URL_HOST);
 
-        if (! $key || ! $host) {
+        if ($key === '' || ! is_string($host) || $host === '' || $urls === []) {
             return;
         }
 
@@ -33,11 +33,11 @@ class IndexNowClient
         ]);
 
         foreach ($urls as $url) {
-            HolvekIndexingLog::create([
+            QuinrelIndexingLog::create([
                 'url' => $url,
                 'engine' => 'indexnow',
                 'status_code' => $response->status(),
-                'response' => $response->json() ?: [],
+                'response' => is_array($response->json()) ? $response->json() : [],
             ]);
         }
     }

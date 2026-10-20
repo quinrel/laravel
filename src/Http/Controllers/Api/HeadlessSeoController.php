@@ -2,16 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Http\Controllers\Api;
+namespace Quinrel\Laravel\Http\Controllers\Api;
 
-use Holvek\Laravel\Models\HolvekMeta;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Quinrel\Laravel\Models\QuinrelMeta;
 
 class HeadlessSeoController
 {
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
-        $meta = HolvekMeta::where('model_id', $id)->first();
+        $query = QuinrelMeta::where('model_id', $id);
+
+        $modelType = $request->query('model_type');
+        if (is_string($modelType) && $modelType !== '') {
+            $query->where('model_type', $modelType);
+        }
+
+        $meta = $query->first();
 
         if (! $meta) {
             return response()->json(['error' => 'SEO metadata not found'], 404);
@@ -23,8 +31,9 @@ class HeadlessSeoController
             'canonical_url' => $meta->canonical_url,
             'robots' => $meta->robots,
             'og_image' => $meta->og_image,
-            'social_overrides' => $meta->social_overrides,
-            'schema' => [], // Schema builder output would go here
+            'hreflang_links' => $meta->hreflang_links ?? [],
+            'social_overrides' => $meta->social_overrides ?? [],
+            'schema' => $meta->custom_schema ?? [],
         ]);
     }
 
@@ -32,8 +41,8 @@ class HeadlessSeoController
     {
         return response()->json([
             'site_name' => config('app.name'),
-            'default_image' => config('holvek.defaults.og_image'),
-            'twitter_handle' => config('holvek.social.twitter'),
+            'default_image' => config('quinrel.defaults.og_image'),
+            'twitter_handle' => config('quinrel.social.twitter'),
         ]);
     }
 }

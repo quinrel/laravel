@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Media;
+namespace Quinrel\Laravel\Services\Media;
 
-use Holvek\Laravel\Models\HolvekMeta;
 use Illuminate\Database\Eloquent\Model;
+use Quinrel\Laravel\Models\QuinrelMeta;
 
 class SpatieMediaLibraryHelper
 {
@@ -33,15 +33,15 @@ class SpatieMediaLibraryHelper
     }
 
     /**
-     * Automatically sync the first media item from a collection to the HolvekMeta og_image field.
+     * Automatically sync the first media item from a collection to the QuinrelMeta og_image field.
      */
-    public function syncToHolvekMeta(Model $model, string $collectionName = 'default', string $conversionName = ''): void
+    public function syncToQuinrelMeta(Model $model, string $collectionName = 'default', string $conversionName = ''): void
     {
         $url = $this->extractOgImage($model, $collectionName, $conversionName);
 
-        if ($url && method_exists($model, 'holvekMeta')) {
-            $meta = $model->holvekMeta()->firstOrCreate([]);
-            if ($meta instanceof HolvekMeta) {
+        if ($url && method_exists($model, 'quinrelMeta')) {
+            $meta = $model->quinrelMeta()->firstOrCreate([]);
+            if ($meta instanceof QuinrelMeta) {
                 $meta->update(['og_image' => $url]);
             }
         }

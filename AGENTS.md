@@ -1,6 +1,4 @@
-# AGENTS.md
-
-# Holvek Laravel — Agent Engineering Constitution
+# Quinrel Laravel — Agent Engineering Constitution
 
 ## 1. Mission
 
@@ -83,7 +81,7 @@ class CustomContainer
 Good:
 
 ```php
-$this->app->singleton(HolvekClient::class);
+$this->app->singleton(QuinrelClient::class);
 ```
 
 ---
@@ -214,7 +212,7 @@ One high-quality dependency is preferable to five small packages that duplicate 
 
 # 8. Service Provider Rules
 
-The service provider is the integration boundary between Holvek and Laravel.
+The service provider is the integration boundary between Quinrel and Laravel.
 
 Keep `register()` focused on:
 
@@ -260,7 +258,7 @@ Never access environment variables directly throughout application code.
 Bad:
 
 ```php
-env('HOLVEK_API_KEY')
+env('QUINREL_API_KEY')
 ```
 
 inside services.
@@ -268,7 +266,7 @@ inside services.
 Good:
 
 ```php
-config('holvek.api.key')
+config('quinrel.api.key')
 ```
 
 Use `env()` only in configuration files.
@@ -277,7 +275,7 @@ Use `env()` only in configuration files.
 
 # 10. HTTP/API Rules
 
-All Holvek platform communication must pass through a clearly defined HTTP boundary.
+All Quinrel platform communication must pass through a clearly defined HTTP boundary.
 
 Do not scatter HTTP requests throughout:
 
@@ -292,13 +290,13 @@ Prefer:
 ```text
 Application
     ↓
-Holvek Service / Contract
+Quinrel Service / Contract
     ↓
 API Client
     ↓
 Laravel HTTP Client
     ↓
-Holvek API
+Quinrel API
 ```
 
 The API client must handle:
@@ -337,13 +335,13 @@ Network operations must be explicit.
 Good:
 
 ```php
-$visibility = $holvek->visibility()->for($site);
+$visibility = $quinrel->visibility()->for($site);
 ```
 
 Bad:
 
 ```php
-$site->holvek_visibility
+$site->quinrel_visibility
 ```
 
 if that property silently performs a network request.
@@ -352,7 +350,7 @@ if that property silently performs a network request.
 
 # 12. Database Rules
 
-Do not assume the host application wants Holvek database tables.
+Do not assume the host application wants Quinrel database tables.
 
 If persistence is required:
 
@@ -448,10 +446,10 @@ ConfigurationService
 Bad:
 
 ```text
-HolvekManager
-HolvekHelper
-HolvekUtility
-HolvekService
+QuinrelManager
+QuinrelHelper
+QuinrelUtility
+QuinrelService
 ```
 
 A class called `Manager` or `Helper` often indicates unclear responsibility.
@@ -522,7 +520,7 @@ TransportException
 Avoid:
 
 ```text
-HolvekException
+QuinrelException
 GeneralException
 SomethingWentWrongException
 ```
@@ -575,7 +573,7 @@ Never log:
 Prefer structured context:
 
 ```php
-Log::warning('Holvek API request failed.', [
+Log::warning('Quinrel API request failed.', [
     'operation' => $operation,
     'status' => $response->status(),
     'request_id' => $requestId,

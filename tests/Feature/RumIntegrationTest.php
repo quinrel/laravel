@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Tests\TestCase;
+use Quinrel\Laravel\Tests\TestCase;
 
 class RumIntegrationTest extends TestCase
 {
@@ -18,11 +18,11 @@ class RumIntegrationTest extends TestCase
             'session_id' => 'abc-123',
         ];
 
-        $response = $this->postJson(route('holvek.api.rum.store'), $payload);
+        $response = $this->postJson(route('quinrel.api.rum.store'), $payload);
 
         $response->assertStatus(202);
 
-        $this->assertDatabaseHas('holvek_rum_metrics', [
+        $this->assertDatabaseHas('quinrel_rum_metrics', [
             'url' => 'https://example.com/blog',
             'metric_name' => 'LCP',
             'metric_value' => 2400.5,

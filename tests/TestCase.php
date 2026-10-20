@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests;
+namespace Quinrel\Laravel\Tests;
 
-use Holvek\Laravel\HolvekServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Quinrel\Laravel\QuinrelServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -17,12 +17,13 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
-            HolvekServiceProvider::class,
+            QuinrelServiceProvider::class,
         ];
     }
 
     protected function getEnvironmentSetUp($app): void
     {
+        $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
             'driver' => 'sqlite',

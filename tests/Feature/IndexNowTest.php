@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Jobs\PingIndexNowJob;
-use Holvek\Laravel\Models\HolvekMeta;
-use Holvek\Laravel\Services\IndexNow\IndexNowService;
-use Holvek\Laravel\Tests\TestCase;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Quinrel\Laravel\Jobs\PingIndexNowJob;
+use Quinrel\Laravel\Models\QuinrelMeta;
+use Quinrel\Laravel\Services\IndexNow\IndexNowService;
+use Quinrel\Laravel\Tests\TestCase;
 
 class IndexNowTest extends TestCase
 {
@@ -20,15 +20,15 @@ class IndexNowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        config(['holvek.indexnow.enabled' => true]);
-        config(['holvek.indexnow.key' => '1234567890abcdef1234567890abcdef']);
+        config(['quinrel.indexnow.enabled' => true]);
+        config(['quinrel.indexnow.key' => '1234567890abcdef1234567890abcdef']);
     }
 
     public function test_it_dispatches_job_when_meta_saved(): void
     {
         Queue::fake();
 
-        HolvekMeta::forceCreate([
+        QuinrelMeta::forceCreate([
             'model_type' => User::class,
             'model_id' => 1,
             'canonical_url' => 'https://example.com/test-url',

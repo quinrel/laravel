@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Filament\Widgets;
+namespace Quinrel\Laravel\Filament\Widgets;
 
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
-use Holvek\Laravel\Models\HolvekGscMetric;
+use Quinrel\Laravel\Models\QuinrelGscMetric;
 
 class GscPerformanceWidget extends ChartWidget
 {
@@ -16,7 +16,7 @@ class GscPerformanceWidget extends ChartWidget
     {
         $startDate = Carbon::now()->subDays(30)->format('Y-m-d');
 
-        $metrics = HolvekGscMetric::whereNull('url')
+        $metrics = QuinrelGscMetric::whereNull('url')
             ->where('date', '>=', $startDate)
             ->orderBy('date')
             ->get();

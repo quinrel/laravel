@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Tests\Feature;
+namespace Quinrel\Laravel\Tests\Feature;
 
-use Holvek\Laravel\Services\AI\AiWritingAssistant;
-use Holvek\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
+use Quinrel\Laravel\Services\AI\AiWritingAssistant;
+use Quinrel\Laravel\Tests\TestCase;
 
 class AiWritingAssistantTest extends TestCase
 {
     public function test_it_uses_openai_when_configured(): void
     {
-        config(['holvek.ai.provider' => 'openai', 'holvek.ai.openai_key' => 'fake-key']);
+        config(['quinrel.ai.provider' => 'openai', 'quinrel.ai.openai_key' => 'fake-key']);
 
         Http::fake([
             'api.openai.com/*' => Http::response([

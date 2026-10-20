@@ -15,12 +15,12 @@ parameters:
     ignoreErrors:
         -
             message: '#Called .env. outside of the config directory#'
-            path: config/holvek.php
+            path: config/quinrel.php
         -
             message: '#unknown class Inertia\\Inertia#'
             path: src/Middleware/InertiaSeoMiddleware.php
             reportUnmatched: false
         -
-            message: '#Trait Holvek\\Laravel\\Traits\\HasHolvekMeta is used zero times and is not analysed.#'
-            path: src/Traits/HasHolvekMeta.php
+            message: '#Trait Quinrel\\Laravel\\Traits\\HasQuinrelMeta is used zero times and is not analysed.#'
+            path: src/Traits/HasQuinrelMeta.php
             reportUnmatched: false

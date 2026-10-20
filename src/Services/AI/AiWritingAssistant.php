@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\AI;
+namespace Quinrel\Laravel\Services\AI;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -14,7 +14,7 @@ class AiWritingAssistant
      */
     public function suggestMetadata(string $content, string $keyword): array
     {
-        $provider = config('holvek.ai.provider', 'ollama');
+        $provider = config('quinrel.ai.provider', 'ollama');
 
         if ($provider === 'openai') {
             return $this->callOpenAI($content, $keyword);
@@ -24,7 +24,6 @@ class AiWritingAssistant
             return $this->callAnthropic($content, $keyword);
         }
 
-        // Default to local Ollama
         return $this->callOllama($content, $keyword);
     }
 
@@ -33,10 +32,10 @@ class AiWritingAssistant
      */
     protected function callOllama(string $content, string $keyword): array
     {
-        $url = config('holvek.ai.ollama_url', 'http://localhost:11434/api/generate');
-        $model = config('holvek.ai.ollama_model', 'llama3');
+        $url = (string) config('quinrel.ai.ollama_url', 'http://localhost:11434/api/generate');
+        $model = (string) config('quinrel.ai.ollama_model', 'llama3');
 
-        $prompt = "Generate an SEO title (max 60 chars) and meta description (max 155 chars) for the following content, focusing on the keyword '{$keyword}'. Return JSON with 'title' and 'description' keys only.\n\nContent:\n".substr($content, 0, 2000);
+        $prompt = "Generate an SEO title (max 60 chars) and meta description (max 155 chars) for the following content, focusing on the keyword '{$keyword}'. Return JSON with 'title' and 'description' keys only.\n\nContent:\n".mb_substr($content, 0, 2000);
 
         /** @var Response $response */
         $response = Http::timeout(60)->post($url, [
@@ -60,17 +59,17 @@ class AiWritingAssistant
      */
     protected function callOpenAI(string $content, string $keyword): array
     {
-        $key = config('holvek.ai.openai_key');
-        if (! $key) {
+        $key = config('quinrel.ai.openai_key');
+        if (! is_string($key) || $key === '') {
             return [];
         }
 
         /** @var Response $response */
-        $response = Http::withToken((string) $key)->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
+        $response = Http::withToken($key)->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
             'model' => 'gpt-4o',
             'messages' => [
                 ['role' => 'system', 'content' => 'You are an expert SEO assistant. Always respond in pure JSON with keys: title, description.'],
-                ['role' => 'user', 'content' => "Keyword: {$keyword}\n\nContent: ".substr($content, 0, 2000)],
+                ['role' => 'user', 'content' => "Keyword: {$keyword}\n\nContent: ".mb_substr($content, 0, 2000)],
             ],
             'response_format' => ['type' => 'json_object'],
         ]);
@@ -89,10 +88,34 @@ class AiWritingAssistant
      */
     protected function callAnthropic(string $content, string $keyword): array
     {
-        // Similar implementation for Anthropic
-        return [
-            'title' => 'Anthropic Suggested Title',
-            'description' => 'Anthropic Suggested Description',
-        ];
+        $key = config('quinrel.ai.anthropic_key');
+        if (! is_string($key) || $key === '') {
+            return [];
+        }
+
+        /** @var Response $response */
+        $response = Http::withHeaders([
+            'x-api-key' => $key,
+            'anthropic-version' => '2023-06-01',
+        ])->timeout(30)->post('https://api.anthropic.com/v1/messages', [
+            'model' => 'claude-3-5-sonnet-latest',
+            'max_tokens' => 300,
+            'system' => 'You are an expert SEO assistant. Always respond in pure JSON with keys: title, description.',
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => "Generate an SEO title (max 60 chars) and meta description (max 155 chars) for the following content, focusing on the keyword '{$keyword}'. Return JSON with 'title' and 'description' keys only.\n\nContent:\n".mb_substr($content, 0, 2000),
+                ],
+            ],
+        ]);
+
+        if ($response->failed()) {
+            return [];
+        }
+
+        $text = (string) $response->json('content.0.text');
+        $json = json_decode($text, true);
+
+        return is_array($json) ? $json : [];
     }
 }

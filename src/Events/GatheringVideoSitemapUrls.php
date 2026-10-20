@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Events;
+namespace Quinrel\Laravel\Events;
 
 use Illuminate\Support\Carbon;
 

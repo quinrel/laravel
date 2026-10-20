@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services;
+namespace Quinrel\Laravel\Services;
 
 use Illuminate\Support\Facades\File;
 

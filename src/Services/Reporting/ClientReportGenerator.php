@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services\Reporting;
+namespace Quinrel\Laravel\Services\Reporting;
 
-use Holvek\Laravel\Services\Analytics\Ga4Client;
-use Holvek\Laravel\Services\Analytics\PageSpeedInsights;
 use Illuminate\Support\Facades\View;
+use Quinrel\Laravel\Services\Analytics\Ga4Client;
+use Quinrel\Laravel\Services\Analytics\PageSpeedInsights;
 
 class ClientReportGenerator
 {
@@ -42,12 +42,15 @@ class ClientReportGenerator
     {
         $data = $this->generateData($url);
 
-        if (! View::exists('holvek::reports.client')) {
-            return "<html><body><h1>SEO Report for {$url}</h1><pre>".json_encode($data, JSON_PRETTY_PRINT).'</pre></body></html>';
+        if (! View::exists('quinrel::reports.client')) {
+            $safeUrl = e($url);
+            $safeJson = e((string) json_encode($data, JSON_PRETTY_PRINT));
+
+            return "<html><body><h1>SEO Report for {$safeUrl}</h1><pre>{$safeJson}</pre></body></html>";
         }
 
         /** @var view-string $viewName */
-        $viewName = 'holvek::reports.client';
+        $viewName = 'quinrel::reports.client';
 
         return View::make($viewName, ['report' => $data])->render();
     }

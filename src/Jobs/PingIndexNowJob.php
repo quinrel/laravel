@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Jobs;
+namespace Quinrel\Laravel\Jobs;
 
-use Holvek\Laravel\Services\IndexNow\IndexNowService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Quinrel\Laravel\Services\IndexNow\IndexNowService;
 
 class PingIndexNowJob implements ShouldQueue
 {

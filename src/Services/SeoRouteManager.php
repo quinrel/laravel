@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Services;
+namespace Quinrel\Laravel\Services;
 
 class SeoRouteManager
 {
@@ -14,7 +14,9 @@ class SeoRouteManager
      */
     public function register(string $uri, array $seoData): void
     {
-        $this->routes[$uri] = $seoData;
+        $normalized = '/'.ltrim($uri, '/');
+        $this->routes[$normalized] = $seoData;
+        $this->routes[ltrim($uri, '/')] = $seoData;
     }
 
     /**
@@ -22,15 +24,22 @@ class SeoRouteManager
      */
     public function getForUri(string $uri): ?array
     {
+        $normalized = '/'.ltrim($uri, '/');
+        $trimmed = ltrim($uri, '/');
+
         // Exact match
-        if (isset($this->routes[$uri])) {
-            return $this->routes[$uri];
+        if (isset($this->routes[$normalized])) {
+            return $this->routes[$normalized];
+        }
+
+        if (isset($this->routes[$trimmed])) {
+            return $this->routes[$trimmed];
         }
 
         // Wildcard match
         foreach ($this->routes as $pattern => $data) {
             $regex = '#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'$#';
-            if (preg_match($regex, $uri)) {
+            if (@preg_match($regex, $normalized) === 1 || @preg_match($regex, $trimmed) === 1) {
                 return $data;
             }
         }

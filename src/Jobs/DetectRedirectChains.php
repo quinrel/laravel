@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Holvek\Laravel\Jobs;
+namespace Quinrel\Laravel\Jobs;
 
-use Holvek\Laravel\Models\HolvekRedirect;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Quinrel\Laravel\Models\QuinrelRedirect;
 
 class DetectRedirectChains implements ShouldQueue
 {
@@ -18,7 +18,7 @@ class DetectRedirectChains implements ShouldQueue
     public function handle(): void
     {
         // Load all active redirects to check for chains and loops
-        $redirects = HolvekRedirect::where('is_active', true)->get();
+        $redirects = QuinrelRedirect::where('is_active', true)->get();
 
         // Build a map of source -> target for fast lookup
         $redirectMap = $redirects->pluck('target_url', 'source_url')->toArray();
