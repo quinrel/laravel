@@ -28,7 +28,9 @@ jobs:
         tools: composer:v2
 
     - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      run: |
+        composer require "orchestra/testbench:^${{ matrix.laravel == '12.*' && '10.0' || '9.0' }}" --no-interaction --no-update
+        composer update --prefer-dist --no-interaction --no-progress --with-all-dependencies
 
     - name: Run Pint
       run: vendor/bin/pint --test

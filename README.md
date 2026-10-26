@@ -29,7 +29,13 @@ Install Quinrel via Composer:
 composer require quinrel/laravel
 ```
 
-Publish configuration, migrations, and assets:
+Run the interactive setup command:
+
+```bash
+php artisan quinrel:install
+```
+
+Alternatively, publish configuration, migrations, and assets manually:
 
 ```bash
 php artisan vendor:publish --tag="quinrel-config"

@@ -4,6 +4,12 @@
     "keywords": ["laravel", "seo", "geo", "aeo", "llms-txt", "metadata", "sitemap", "schema", "core-web-vitals", "accessibility"],
     "license": "MIT",
     "type": "library",
+    "homepage": "https://quinrel.com",
+    "support": {
+        "issues": "https://github.com/quinrel/laravel/issues",
+        "source": "https://github.com/quinrel/laravel",
+        "docs": "https://quinrel.com/docs"
+    },
     "authors": [
         {
             "name": "Quinrel Team",
