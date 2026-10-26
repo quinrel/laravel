@@ -250,12 +250,24 @@ HTML;
 
     protected function registerGates(): void
     {
-        Gate::define('view-quinrel', function (?object $user = null) {
-            return $user !== null && in_array($user->role ?? null, ['admin', 'editor', 'author', 'seo'], true);
-        });
+        if (! Gate::has('view-quinrel')) {
+            Gate::define('view-quinrel', function (?object $user = null) {
+                if ($this->app->environment('local')) {
+                    return true;
+                }
 
-        Gate::define('manage-quinrel', function (?object $user = null) {
-            return $user !== null && in_array($user->role ?? null, ['admin', 'seo'], true);
-        });
+                return $user !== null && in_array($user->role ?? null, ['admin', 'editor', 'author', 'seo'], true);
+            });
+        }
+
+        if (! Gate::has('manage-quinrel')) {
+            Gate::define('manage-quinrel', function (?object $user = null) {
+                if ($this->app->environment('local')) {
+                    return true;
+                }
+
+                return $user !== null && in_array($user->role ?? null, ['admin', 'seo'], true);
+            });
+        }
     }
 }

@@ -18,6 +18,10 @@ class AeoContentNegotiationMiddleware
 
         // Only convert successful HTML responses
         if (! $this->shouldConvert($request, $response)) {
+            if (str_contains((string) $response->headers->get('Content-Type', ''), 'text/html')) {
+                $response->headers->set('Vary', 'Accept', false);
+            }
+
             return $response;
         }
 
