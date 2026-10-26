@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Quinrel\Laravel\Services\AI;
 
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class AiWritingAssistant
@@ -14,7 +15,15 @@ class AiWritingAssistant
      */
     public function suggestMetadata(string $content, string $keyword): array
     {
-        $provider = config('quinrel.ai.provider', 'ollama');
+        $setupConfig = Cache::get('quinrel_setup_config');
+        $setupProvider = is_array($setupConfig) && isset($setupConfig['aiProvider']) && is_string($setupConfig['aiProvider'])
+            ? $setupConfig['aiProvider']
+            : null;
+
+        $configuredProvider = config('quinrel.ai.provider');
+        $provider = (is_string($configuredProvider) && $configuredProvider !== '' && $configuredProvider !== 'ollama')
+            ? $configuredProvider
+            : ($setupProvider ?? (is_string($configuredProvider) && $configuredProvider !== '' ? $configuredProvider : 'ollama'));
 
         if ($provider === 'openai') {
             return $this->callOpenAI($content, $keyword);
@@ -25,6 +34,31 @@ class AiWritingAssistant
         }
 
         return $this->callOllama($content, $keyword);
+    }
+
+    /**
+     * Generate descriptive, WCAG-compliant alt text for an image based on its filename and surrounding context.
+     */
+    public function suggestAltText(string $imageUrl, string $surroundingContext = '', string $articleTitle = ''): string
+    {
+        $filename = pathinfo((string) parse_url($imageUrl, PHP_URL_PATH), PATHINFO_FILENAME);
+        $cleanFilename = trim((string) preg_replace('/[-_]+/', ' ', $filename));
+        $contextPrompt = trim("Article: {$articleTitle}\nImage file: {$cleanFilename}\nSurrounding text: ".mb_substr(strip_tags($surroundingContext), 0, 500));
+        $keyword = $articleTitle !== '' ? $articleTitle : ($cleanFilename !== '' ? $cleanFilename : 'image');
+
+        $result = $this->suggestMetadata($contextPrompt, $keyword);
+
+        foreach (['alt_text', 'alt', 'description', 'title'] as $key) {
+            if (isset($result[$key]) && is_string($result[$key]) && trim($result[$key]) !== '') {
+                return mb_substr(trim($result[$key]), 0, 125);
+            }
+        }
+
+        if ($cleanFilename !== '' && ! preg_match('/^(?:img|dsc|dcim|image|photo|screenshot)\s*\d*$/i', $cleanFilename)) {
+            return ucfirst($cleanFilename).($articleTitle !== '' ? " — {$articleTitle}" : '');
+        }
+
+        return $articleTitle !== '' ? "Illustration for {$articleTitle}" : 'Descriptive article image';
     }
 
     /**

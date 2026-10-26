@@ -35,10 +35,12 @@ class AeoContentNegotiationMiddleware
             'strip_tags' => true,
         ]);
 
-        $markdown = $converter->convert($mainContent);
+        $markdown = trim($converter->convert($mainContent));
 
         return response($markdown)
-            ->header('Content-Type', 'text/markdown; charset=UTF-8');
+            ->header('Content-Type', 'text/markdown; charset=UTF-8')
+            ->header('Vary', 'Accept')
+            ->header('X-Robots-Tag', 'noindex');
     }
 
     protected function shouldConvert(Request $request, SymfonyResponse $response): bool

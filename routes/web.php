@@ -25,6 +25,15 @@ Route::prefix(config('quinrel.ui.path', 'quinrel'))
         Route::post('/api/setup', [DashboardController::class, 'saveSetup'])
             ->name('quinrel.api.setup');
 
+        Route::get('/api/diagnostics', [DashboardController::class, 'diagnostics'])
+            ->name('quinrel.api.diagnostics');
+
+        Route::post('/api/inspect-url', [DashboardController::class, 'inspectUrl'])
+            ->name('quinrel.api.inspect-url');
+
+        Route::post('/api/crawl', [DashboardController::class, 'runCrawl'])
+            ->name('quinrel.api.crawl');
+
         Route::get('/llms.txt', [LlmsTxtController::class, 'index'])
             ->name('quinrel.llms.txt');
 

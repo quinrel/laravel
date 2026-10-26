@@ -6,6 +6,7 @@ namespace Quinrel\Laravel\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Cache;
 use Quinrel\Laravel\Models\QuinrelRumMetric;
 
 class RumPerformanceWidget extends BaseWidget
@@ -38,22 +39,26 @@ class RumPerformanceWidget extends BaseWidget
 
     protected function getPercentile(string $metricName, int $percentile): ?float
     {
-        $baseQuery = QuinrelRumMetric::query()
-            ->where('metric_name', $metricName)
-            ->where('created_at', '>=', now()->subDays(30));
+        $cacheKey = "quinrel:rum:p{$percentile}:{$metricName}";
 
-        $count = (clone $baseQuery)->count();
-        if ($count === 0) {
-            return null;
-        }
+        return Cache::remember($cacheKey, 60, function () use ($metricName, $percentile): ?float {
+            $baseQuery = QuinrelRumMetric::query()
+                ->where('metric_name', $metricName)
+                ->where('created_at', '>=', now()->subDays(30));
 
-        $index = max(0, (int) ceil(($percentile / 100) * $count) - 1);
+            $count = (clone $baseQuery)->count();
+            if ($count === 0) {
+                return null;
+            }
 
-        $value = $baseQuery
-            ->orderBy('metric_value')
-            ->skip($index)
-            ->value('metric_value');
+            $index = max(0, (int) ceil(($percentile / 100) * $count) - 1);
 
-        return $value !== null ? (float) $value : null;
+            $value = $baseQuery
+                ->orderBy('metric_value')
+                ->skip($index)
+                ->value('metric_value');
+
+            return $value !== null ? (float) $value : null;
+        });
     }
 }

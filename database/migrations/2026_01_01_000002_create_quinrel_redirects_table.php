@@ -18,6 +18,9 @@ return new class extends Migration
             $table->boolean('is_regex')->default(false);
             $table->boolean('is_active')->default(true);
             $table->integer('hits')->default(0);
+            $table->boolean('is_chain')->default(false);
+            $table->boolean('is_loop')->default(false);
+            $table->json('chain_details')->nullable();
             $table->timestamps();
 
             $table->index(['is_active', 'is_regex', 'source_url']);

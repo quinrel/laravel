@@ -4,19 +4,30 @@ declare(strict_types=1);
 
 namespace Quinrel\Laravel\Tests\Feature;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
+use Quinrel\Laravel\Middleware\Quinrel404MonitorMiddleware;
+use Quinrel\Laravel\Models\Quinrel404Log;
+use Quinrel\Laravel\Models\QuinrelAuditLog;
+use Quinrel\Laravel\Models\QuinrelIndexingLog;
+use Quinrel\Laravel\Models\QuinrelMeta;
 use Quinrel\Laravel\Models\QuinrelRumMetric;
 use Quinrel\Laravel\Services\Analytics\Ga4Client;
 use Quinrel\Laravel\Services\Analytics\PageSpeedInsights;
+use Quinrel\Laravel\Services\HeadRenderer;
 use Quinrel\Laravel\Services\Reporting\ClientReportGenerator;
 use Quinrel\Laravel\Services\Schema\ImageSchemaEnricher;
+use Quinrel\Laravel\Services\Schema\SchemaBuilder;
+use Quinrel\Laravel\Services\Schema\SchemaGenerator;
 use Quinrel\Laravel\Services\Technical\BrokenLinkChecker;
 use Quinrel\Laravel\Services\Technical\TechnicalSeoAuditor;
 use Quinrel\Laravel\Support\UrlValidator;
 use Quinrel\Laravel\Tests\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class SecurityAndComplianceTest extends TestCase
 {
@@ -142,5 +153,129 @@ class SecurityAndComplianceTest extends TestCase
             'metric_name' => 'CLS',
             'session_id' => 'sess-2',
         ]);
+    }
+
+    public function test_json_ld_schema_escapes_script_breakout_tags(): void
+    {
+        $payload = '</script><script>alert("xss")</script>';
+
+        $builderHtml = SchemaBuilder::make('Article')
+            ->set('headline', $payload)
+            ->toHtml();
+
+        $this->assertStringNotContainsString('</script><script>', $builderHtml);
+        $this->assertStringContainsString('\u003C/script\u003E', $builderHtml);
+
+        $generator = new SchemaGenerator;
+        $generator->addCustom(['@type' => 'WebPage', 'name' => $payload]);
+        $rendered = $generator->render();
+
+        $this->assertStringNotContainsString('</script><script>', $rendered);
+        $this->assertStringContainsString('\u003C/script\u003E', $rendered);
+    }
+
+    public function test_discovery_scan_and_noindex_headless_seo_enforce_authorization(): void
+    {
+        $this->getJson('/quinrel/api/v1/discovery/scan?url=https://example.com')
+            ->assertForbidden();
+
+        config(['quinrel.api.cloud_key' => 'secret-cloud-token']);
+        Http::fake([
+            'https://example.com' => Http::response('<!DOCTYPE html><html lang="en"><head><link rel="icon" href="/favicon.ico"></head><body></body></html>', 200),
+        ]);
+
+        $this->withHeader('X-Quinrel-Token', 'secret-cloud-token')
+            ->getJson('/quinrel/api/v1/discovery/scan?url=https://example.com')
+            ->assertOk();
+
+        QuinrelMeta::create([
+            'model_type' => User::class,
+            'model_id' => 777,
+            'title' => 'Private Draft Page',
+            'robots' => 'noindex, nofollow',
+        ]);
+
+        // Unauthenticated caller cannot enumerate noindex metadata
+        $this->getJson('/quinrel/api/v1/seo/777')->assertNotFound();
+
+        // Authorized user can view noindex metadata
+        $editor = new User;
+        $editor->id = 2;
+        $editor->setAttribute('role', 'editor');
+
+        $this->actingAs($editor)
+            ->getJson('/quinrel/api/v1/seo/777')
+            ->assertOk()
+            ->assertJsonPath('title', 'Private Draft Page');
+    }
+
+    public function test_ssrf_safe_get_blocks_malicious_redirect_hops_and_ipv4_mapped_ipv6(): void
+    {
+        $this->assertFalse(UrlValidator::isSafe('http://[::ffff:127.0.0.1]/admin'));
+        $this->assertFalse(UrlValidator::isSafe('http://[::ffff:169.254.169.254]/latest/meta-data/'));
+
+        Http::fake([
+            'https://example.com/open-redirect' => Http::response('', 302, [
+                'Location' => 'http://169.254.169.254/latest/meta-data/',
+            ]),
+        ]);
+
+        $this->assertNull(UrlValidator::safeGet('https://example.com/open-redirect'));
+
+        $auditor = new TechnicalSeoAuditor;
+        $audit = $auditor->auditUrl('https://example.com/open-redirect');
+        $this->assertSame('error', $audit['https']['status']);
+        $this->assertStringContainsString('SSRF', $audit['https']['message']);
+    }
+
+    public function test_setup_wizard_requires_manage_quinrel_and_wires_runtime_fallbacks(): void
+    {
+        config(['quinrel.social.twitter' => '']);
+
+        $author = new User;
+        $author->id = 10;
+        $author->setAttribute('role', 'author');
+
+        $this->actingAs($author)
+            ->postJson('/quinrel/api/setup', [
+                'siteName' => 'Corporate',
+                'twitterHandle' => '@unauthorized',
+                'aiProvider' => 'openai',
+            ])
+            ->assertForbidden();
+
+        $admin = new User;
+        $admin->id = 1;
+        $admin->setAttribute('role', 'admin');
+
+        $this->actingAs($admin)
+            ->postJson('/quinrel/api/setup', [
+                'siteName' => 'Corporate',
+                'twitterHandle' => '@configured_handle',
+                'aiProvider' => 'anthropic',
+            ])
+            ->assertOk();
+
+        $meta = app(HeadRenderer::class)->resolveMetadata();
+        $this->assertSame('@configured_handle', $meta['twitter_handle']);
+    }
+
+    public function test_404_monitor_rate_limiting_and_log_models_prunable(): void
+    {
+        config(['quinrel.redirects.max_404_logs_per_minute' => 2]);
+
+        $middleware = new Quinrel404MonitorMiddleware;
+
+        for ($i = 1; $i <= 4; $i++) {
+            $req = Request::create("/probe-{$i}", 'GET', [], [], [], ['REMOTE_ADDR' => '203.0.113.55']);
+            $middleware->handle($req, fn () => new Response('Not Found', 404));
+        }
+
+        // Only the first 2 requests within the rate limit window are persisted
+        $this->assertSame(2, Quinrel404Log::count());
+
+        $this->assertInstanceOf(Builder::class, (new Quinrel404Log)->prunable());
+        $this->assertInstanceOf(Builder::class, (new QuinrelAuditLog)->prunable());
+        $this->assertInstanceOf(Builder::class, (new QuinrelIndexingLog)->prunable());
     }
 }

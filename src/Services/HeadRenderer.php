@@ -6,6 +6,7 @@ namespace Quinrel\Laravel\Services;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Quinrel\Laravel\Middleware\AeoContentNegotiationMiddleware;
 use Quinrel\Laravel\Middleware\InertiaSeoMiddleware;
 use Quinrel\Laravel\Middleware\LivewireSeoMiddleware;
 use Quinrel\Laravel\Services\Schema\SchemaGenerator;
@@ -14,6 +15,73 @@ class HeadRenderer
 {
     /** @var array<string, mixed> */
     protected array $overrides = [];
+
+    /** @var array<int, array{url: string, as: string, type: ?string}> */
+    protected array $preloads = [];
+
+    public function addPreload(string $url, string $as = 'image', ?string $type = null): self
+    {
+        $this->preloads[] = [
+            'url' => $url,
+            'as' => $as,
+            'type' => $type,
+        ];
+
+        return $this;
+    }
+
+    public function renderPreload(string $url, string $as = 'image', ?string $type = null): string
+    {
+        $typeAttr = ($type !== null && $type !== '') ? sprintf(' type="%s"', e($type)) : '';
+        $priorityAttr = $as === 'image' ? ' fetchpriority="high"' : '';
+
+        return sprintf(
+            '<link rel="preload" href="%s" as="%s"%s%s>',
+            e($url),
+            e($as),
+            $typeAttr,
+            $priorityAttr
+        );
+    }
+
+    /**
+     * Post-process HTML content so all non-hero <img> tags have loading="lazy" and decoding="async".
+     */
+    public function optimizeContentImages(string $html): string
+    {
+        if (! str_contains($html, '<img')) {
+            return $html;
+        }
+
+        return (string) preg_replace_callback('/<img\b([^>]*)>/i', function (array $matches): string {
+            $attrs = $matches[1];
+            $isHero = (bool) preg_match('/\b(?:data-hero(?:=[\'"](?:true|1)[\'"])?|fetchpriority=[\'"]high[\'"]|loading=[\'"]eager[\'"])/i', $attrs);
+
+            if ($isHero) {
+                if (! preg_match('/\bloading=[\'"][^\'"]*[\'"]/i', $attrs)) {
+                    $attrs .= ' loading="eager"';
+                }
+                if (! preg_match('/\bfetchpriority=[\'"][^\'"]*[\'"]/i', $attrs)) {
+                    $attrs .= ' fetchpriority="high"';
+                }
+                if (! preg_match('/\bdecoding=[\'"][^\'"]*[\'"]/i', $attrs)) {
+                    $attrs .= ' decoding="async"';
+                }
+
+                return '<img'.$attrs.'>';
+            }
+
+            if (! preg_match('/\bloading=[\'"][^\'"]*[\'"]/i', $attrs)) {
+                $attrs .= ' loading="lazy"';
+            }
+
+            if (! preg_match('/\bdecoding=[\'"][^\'"]*[\'"]/i', $attrs)) {
+                $attrs .= ' decoding="async"';
+            }
+
+            return '<img'.$attrs.'>';
+        }, $html);
+    }
 
     public function setTitle(string $title): self
     {
@@ -73,6 +141,7 @@ class HeadRenderer
     public function resetOverrides(): self
     {
         $this->overrides = [];
+        $this->preloads = [];
 
         return $this;
     }
@@ -87,11 +156,16 @@ class HeadRenderer
         return LivewireSeoMiddleware::class;
     }
 
+    public function aeo(): string
+    {
+        return AeoContentNegotiationMiddleware::class;
+    }
+
     public function render(?object $model = null): string
     {
         $isProduction = (bool) App::environment('production');
 
-        if (! empty($this->overrides)) {
+        if (! empty($this->overrides) || ! empty($this->preloads)) {
             return $this->generateHtml($model, $isProduction);
         }
 
@@ -143,6 +217,12 @@ class HeadRenderer
         $ogImage = config('quinrel.defaults.og_image');
         $ogImage = is_string($ogImage) && $ogImage !== '' ? $ogImage : null;
         $twitterHandle = config('quinrel.social.twitter');
+        if (! is_string($twitterHandle) || $twitterHandle === '') {
+            $setupConfig = Cache::get('quinrel_setup_config');
+            $twitterHandle = is_array($setupConfig) && isset($setupConfig['twitterHandle']) && is_string($setupConfig['twitterHandle'])
+                ? $setupConfig['twitterHandle']
+                : null;
+        }
         $twitterHandle = is_string($twitterHandle) && $twitterHandle !== '' ? $twitterHandle : null;
         $hreflangs = [];
         $socialOverrides = [];
@@ -316,10 +396,23 @@ class HeadRenderer
 
         if ($meta['canonical']) {
             $html[] = sprintf('<link rel="canonical" href="%s">', e($meta['canonical']));
+
+            if (
+                config('quinrel.llms_txt.advertise_markdown_alternate', true)
+                && ! str_contains(strtolower($meta['robots']), 'noindex')
+            ) {
+                $separator = str_contains($meta['canonical'], '?') ? '&' : '?';
+                $mdHref = $meta['canonical'].$separator.'format=md';
+                $html[] = sprintf('<link rel="alternate" type="text/markdown" href="%s">', e($mdHref));
+            }
         }
 
         foreach ($meta['hreflangs'] as $locale => $url) {
             $html[] = sprintf('<link rel="alternate" hreflang="%s" href="%s">', e((string) $locale), e((string) $url));
+        }
+
+        foreach ($this->preloads as $preload) {
+            $html[] = $this->renderPreload($preload['url'], $preload['as'], $preload['type']);
         }
 
         if (! empty($meta['custom_schema'])) {

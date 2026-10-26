@@ -18,7 +18,7 @@ class ValidateHreflangTags implements ShouldQueue
 
     public function handle(): void
     {
-        $metas = QuinrelMeta::whereNotNull('hreflang_links')->get();
+        $metas = QuinrelMeta::whereNotNull('hreflang_links')->lazyById();
 
         foreach ($metas as $meta) {
             $links = $meta->hreflang_links;

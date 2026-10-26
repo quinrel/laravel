@@ -17,11 +17,9 @@ class DetectRedirectChains implements ShouldQueue
 
     public function handle(): void
     {
-        // Load all active redirects to check for chains and loops
         $redirects = QuinrelRedirect::where('is_active', true)->get();
-
-        // Build a map of source -> target for fast lookup
         $redirectMap = $redirects->pluck('target_url', 'source_url')->toArray();
+        $autoFlatten = (bool) config('quinrel.redirects.auto_flatten_chains', false);
 
         foreach ($redirects as $redirect) {
             $visited = [$redirect->source_url];
@@ -41,14 +39,26 @@ class DetectRedirectChains implements ShouldQueue
                 $current = $redirectMap[$current];
             }
 
-            if (count($chain) > 0) {
-                // Add the final destination to the chain if it's not a loop
-                if (! $isLoop) {
-                    $chain[] = $current;
-                }
+            if (count($chain) > 0 && ! $isLoop) {
+                $chain[] = $current;
             }
 
             $isChain = count($chain) > 0;
+
+            if ($autoFlatten && $isChain && ! $isLoop) {
+                $finalDestination = (string) end($chain);
+                if ($finalDestination !== '' && $finalDestination !== $redirect->source_url) {
+                    $redirect->update([
+                        'target_url' => $finalDestination,
+                        'is_chain' => false,
+                        'is_loop' => false,
+                        'chain_details' => null,
+                    ]);
+                    $redirectMap[$redirect->source_url] = $finalDestination;
+
+                    continue;
+                }
+            }
 
             if (
                 $redirect->is_chain !== $isChain ||

@@ -19,6 +19,7 @@ class ContentAnalyzer
     {
         return [
             'seo' => $this->seoChecklist->analyze($title, $description, $content, $focusKeyword),
+            'geo' => $this->seoChecklist->analyzeGeo($content),
             'readability' => $this->readabilityChecker->analyze($content),
             'internal_links' => $this->linkSuggester->suggest($content, $focusKeyword),
         ];

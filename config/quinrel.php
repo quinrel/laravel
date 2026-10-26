@@ -37,10 +37,35 @@ return [
 
     'llms_txt' => [
         'enabled' => env('QUINREL_LLMS_TXT_ENABLED', true),
+        'description' => env('QUINREL_LLM_DESCRIPTION'),
+        'max_links' => (int) env('QUINREL_LLMS_TXT_MAX_LINKS', 1000),
+        'advertise_markdown_alternate' => (bool) env('QUINREL_ADVERTISE_MARKDOWN_ALTERNATE', true),
+    ],
+
+    'audit_log' => [
+        'enabled' => (bool) env('QUINREL_AUDIT_LOG_ENABLED', true),
+        'retention_days' => (int) env('QUINREL_AUDIT_LOG_RETENTION_DAYS', 90),
     ],
 
     'social' => [
         'twitter' => env('QUINREL_TWITTER_HANDLE', '@quinrel'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect & Crawl Settings
+    |--------------------------------------------------------------------------
+    */
+    'redirects' => [
+        'auto_flatten_chains' => (bool) env('QUINREL_AUTO_FLATTEN_REDIRECT_CHAINS', false),
+        'track_hits' => (bool) env('QUINREL_REDIRECT_TRACK_HITS', true),
+        'max_404_logs_per_minute' => (int) env('QUINREL_MAX_404_LOGS_PER_MIN', 60),
+        'retention_days' => (int) env('QUINREL_404_RETENTION_DAYS', 90),
+    ],
+
+    'crawl' => [
+        'concurrency' => (int) env('QUINREL_CRAWL_CONCURRENCY', 10),
+        'max_urls' => (int) env('QUINREL_CRAWL_MAX_URLS', 500),
     ],
 
     /*
@@ -56,7 +81,6 @@ return [
         'serpapi_key' => env('QUINREL_SERPAPI_KEY'),
         'google_oauth_token' => env('QUINREL_GOOGLE_OAUTH_TOKEN'),
         'gsc_service_account' => env('QUINREL_GSC_SERVICE_ACCOUNT'), // path to json or json string
-        'indexnow_key' => env('QUINREL_INDEXNOW_KEY'),
     ],
 
     /*
@@ -85,6 +109,7 @@ return [
     'indexnow' => [
         'enabled' => env('QUINREL_INDEXNOW_ENABLED', false),
         'key' => env('QUINREL_INDEXNOW_KEY'),
+        'retention_days' => (int) env('QUINREL_INDEXNOW_RETENTION_DAYS', 30),
         'search_engines' => [
             'api.indexnow.org',
             'www.bing.com',

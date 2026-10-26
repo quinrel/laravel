@@ -25,10 +25,14 @@ class QuinrelPlugin implements Plugin
             ])
             ->pages([
                 Pages\IndexingDashboard::class,
+                Pages\CrawlDashboard::class,
             ])
             ->widgets([
                 Widgets\GscPerformanceWidget::class,
+                Widgets\GscIndexStatusWidget::class,
                 Widgets\RumPerformanceWidget::class,
+                Widgets\PageSpeedOpportunitiesWidget::class,
+                Widgets\AccessibilityScoreWidget::class,
             ]);
     }
 

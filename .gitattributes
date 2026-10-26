@@ -1,0 +1,26 @@
+* text=auto eol=lf
+
+/.github export-ignore
+/.kilo export-ignore
+/build export-ignore
+/docs export-ignore
+/node_modules export-ignore
+/tests export-ignore
+.DS_Store export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.phpunit.result.cache export-ignore
+AGENTS.md export-ignore
+BACKLOG.md export-ignore
+BACKLOG_v1.1.0.md export-ignore
+BACKLOG_v1.2.0.md export-ignore
+PRODUCTION_READINESS_AUDIT.md export-ignore
+TASKS.md export-ignore
+architecture.md export-ignore
+package-lock.json export-ignore
+package.json export-ignore
+phpstan.neon.dist export-ignore
+phpunit.xml.dist export-ignore
+pint.json export-ignore
+vite.config.js export-ignore
+

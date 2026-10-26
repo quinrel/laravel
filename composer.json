@@ -1,7 +1,7 @@
 {
     "name": "quinrel/laravel",
-    "description": "Advanced SEO, Metadata, and AEO toolkit for modern Laravel applications.",
-    "keywords": ["laravel", "seo", "metadata", "sitemap", "schema", "aeo"],
+    "description": "Advanced SEO, GEO (Generative Engine Optimization), Metadata, CWV, and Accessibility toolkit for modern Laravel applications.",
+    "keywords": ["laravel", "seo", "geo", "aeo", "llms-txt", "metadata", "sitemap", "schema", "core-web-vitals", "accessibility"],
     "license": "MIT",
     "type": "library",
     "authors": [

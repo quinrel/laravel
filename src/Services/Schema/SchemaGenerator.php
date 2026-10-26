@@ -162,7 +162,7 @@ class SchemaGenerator
         // Output as a Graph array if there are multiple, or just the single object
         $output = count($graphs) === 1 ? $graphs[0] : ['@context' => 'https://schema.org', '@graph' => $graphs];
 
-        $json = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
+        $json = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{}';
 
         return '<script type="application/ld+json">'.PHP_EOL.$json.PHP_EOL.'</script>';
     }

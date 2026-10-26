@@ -39,7 +39,7 @@ class BrokenLinkChecker
             $responses = Http::pool(function (Pool $pool) use ($chunk) {
                 $reqs = [];
                 foreach ($chunk as $url) {
-                    $reqs[] = $pool->as($url)->timeout(10)->head($url);
+                    $reqs[] = $pool->as($url)->timeout(10)->withoutRedirecting()->head($url);
                 }
 
                 return $reqs;

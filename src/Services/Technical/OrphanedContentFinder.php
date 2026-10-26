@@ -23,16 +23,11 @@ class OrphanedContentFinder
      */
     public function find(string $modelClass, string $urlCallback = 'getUrl'): Collection
     {
-        /** @var Collection<int, Model> $models */
-        $models = $modelClass::query()->get();
-        if ($models->isEmpty()) {
-            return collect();
-        }
-
         $urlToModel = [];
         $allLinks = [];
 
-        foreach ($models as $model) {
+        foreach ($modelClass::query()->lazy() as $model) {
+            /** @var Model $model */
             $url = $this->resolveModelUrl($model, $urlCallback);
             if ($url === null || $url === '') {
                 continue;
@@ -41,6 +36,10 @@ class OrphanedContentFinder
             $urlToModel[$url] = $model;
             $body = $this->extractBodyText($model);
             $allLinks[$url] = $this->extractHrefLinks($body, $url);
+        }
+
+        if ($urlToModel === []) {
+            return collect();
         }
 
         $orphanedUrls = $this->linkIndexer

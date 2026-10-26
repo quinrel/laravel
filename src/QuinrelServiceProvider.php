@@ -7,20 +7,39 @@ namespace Quinrel\Laravel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Quinrel\Laravel\Console\Commands\AuditAccessibilityCommand;
+use Quinrel\Laravel\Console\Commands\AuditAllCommand;
+use Quinrel\Laravel\Console\Commands\AutofixMetaCommand;
+use Quinrel\Laravel\Console\Commands\CiAuditCheckCommand;
+use Quinrel\Laravel\Console\Commands\CrawlSiteCommand;
 use Quinrel\Laravel\Console\Commands\FetchGscDataCommand;
+use Quinrel\Laravel\Console\Commands\GenerateImageAltTextCommand;
 use Quinrel\Laravel\Console\Commands\GenerateSitemapCommand;
 use Quinrel\Laravel\Console\Commands\InstallCommand;
 use Quinrel\Laravel\Console\Commands\MigrateCompetitorCommand;
+use Quinrel\Laravel\Middleware\AeoContentNegotiationMiddleware;
 use Quinrel\Laravel\Models\QuinrelMeta;
 use Quinrel\Laravel\Observers\QuinrelMetaObserver;
+use Quinrel\Laravel\Services\Accessibility\AccessibilityActionPlanService;
+use Quinrel\Laravel\Services\Accessibility\AccessibilityAuditor;
 use Quinrel\Laravel\Services\AI\AiWritingAssistant;
 use Quinrel\Laravel\Services\Analytics\KeywordCannibalizationDetector;
+use Quinrel\Laravel\Services\Analytics\PageSpeedActionPlanService;
 use Quinrel\Laravel\Services\HeadRenderer;
+use Quinrel\Laravel\Services\Media\AiAltTextGenerator;
 use Quinrel\Laravel\Services\Reporting\ClientReportGenerator;
+use Quinrel\Laravel\Services\Reporting\UnifiedAuditCoordinator;
 use Quinrel\Laravel\Services\SeoRouteManager;
+use Quinrel\Laravel\Services\Technical\Remediation\AutoRedirectCreator;
+use Quinrel\Laravel\Services\Technical\SeoCrawlActionPlanService;
+use Quinrel\Laravel\Services\Technical\SiteCrawlOrchestrator;
+use Quinrel\Laravel\Services\Tracking\GscActionPlanGenerator;
+use Quinrel\Laravel\Services\Tracking\GscInspectionNormalizer;
+use Quinrel\Laravel\View\Components\Image;
 
 class QuinrelServiceProvider extends ServiceProvider
 {
@@ -32,12 +51,28 @@ class QuinrelServiceProvider extends ServiceProvider
         $this->app->scoped(HeadRenderer::class);
         $this->app->alias(HeadRenderer::class, 'quinrel');
         $this->app->singleton(ClientReportGenerator::class);
+        $this->app->singleton(UnifiedAuditCoordinator::class);
         $this->app->singleton(KeywordCannibalizationDetector::class);
         $this->app->singleton(AiWritingAssistant::class);
+        $this->app->singleton(AiAltTextGenerator::class);
+        $this->app->singleton(GscInspectionNormalizer::class);
+        $this->app->singleton(GscActionPlanGenerator::class);
+        $this->app->singleton(SiteCrawlOrchestrator::class);
+        $this->app->singleton(SeoCrawlActionPlanService::class);
+        $this->app->singleton(AutoRedirectCreator::class);
+        $this->app->singleton(PageSpeedActionPlanService::class);
+        $this->app->singleton(AccessibilityAuditor::class);
+        $this->app->singleton(AccessibilityActionPlanService::class);
     }
 
     public function boot(): void
     {
+        if ($this->app->bound('router')) {
+            /** @var Router $router */
+            $router = $this->app->make('router');
+            $router->aliasMiddleware('quinrel.aeo', AeoContentNegotiationMiddleware::class);
+        }
+
         RoutingRoute::macro('seo', function (array $seoData) {
             /** @var RoutingRoute $this */
             $uri = $this->uri();
@@ -56,6 +91,12 @@ class QuinrelServiceProvider extends ServiceProvider
                 InstallCommand::class,
                 FetchGscDataCommand::class,
                 GenerateSitemapCommand::class,
+                CrawlSiteCommand::class,
+                AutofixMetaCommand::class,
+                GenerateImageAltTextCommand::class,
+                AuditAccessibilityCommand::class,
+                AuditAllCommand::class,
+                CiAuditCheckCommand::class,
             ]);
 
             if (class_exists(AboutCommand::class)) {
@@ -96,6 +137,10 @@ class QuinrelServiceProvider extends ServiceProvider
             $expression = $expression ?: 'null';
 
             return "<?php echo app(\Quinrel\Laravel\Services\HeadRenderer::class)->render({$expression}); ?>";
+        });
+
+        Blade::directive('quinrelPreload', function (?string $expression) {
+            return "<?php echo app(\Quinrel\Laravel\Services\HeadRenderer::class)->renderPreload({$expression}); ?>";
         });
 
         Blade::directive('quinrelRum', function () {
@@ -194,6 +239,7 @@ HTML;
         });
 
         Blade::componentNamespace('Quinrel\\Laravel\\View\\Components', 'quinrel');
+        Blade::component(Image::class, 'quinrel-image');
         Blade::component('quinrel::components.cookie-notice', 'quinrel-cookie-notice');
         Blade::component('quinrel::components.ai-disclosure', 'quinrel-ai-disclosure');
 

@@ -8,36 +8,22 @@ use Quinrel\Laravel\Http\Controllers\Api\DiscoveryScanController;
 use Quinrel\Laravel\Http\Controllers\Api\HeadlessSeoController;
 use Quinrel\Laravel\Http\Controllers\QuinrelRumController;
 
-foreach (['quinrel/api/v1', 'quinrel/v1'] as $prefix) {
-    Route::prefix($prefix)->middleware(['api'])->group(function () use ($prefix) {
-        $isCanonical = ($prefix === 'quinrel/api/v1');
+Route::prefix('quinrel/api/v1')->middleware(['api'])->group(function () {
+    Route::post('/rum', [QuinrelRumController::class, 'store'])
+        ->middleware('throttle:600,1')
+        ->name('quinrel.api.rum.store');
 
-        $rum = Route::post('/rum', [QuinrelRumController::class, 'store'])
-            ->middleware('throttle:600,1');
-        if ($isCanonical) {
-            $rum->name('quinrel.api.rum.store');
-        }
+    Route::get('/seo/global', [HeadlessSeoController::class, 'global'])
+        ->name('quinrel.api.seo.global');
 
-        $global = Route::get('/seo/global', [HeadlessSeoController::class, 'global']);
-        if ($isCanonical) {
-            $global->name('quinrel.api.seo.global');
-        }
+    Route::get('/seo/{id}', [HeadlessSeoController::class, 'show'])
+        ->whereNumber('id')
+        ->name('quinrel.api.seo.show');
 
-        $show = Route::get('/seo/{id}', [HeadlessSeoController::class, 'show'])
-            ->whereNumber('id');
-        if ($isCanonical) {
-            $show->name('quinrel.api.seo.show');
-        }
+    Route::get('/discovery/scan', [DiscoveryScanController::class, 'scan'])
+        ->middleware('throttle:60,1')
+        ->name('quinrel.api.discovery.scan');
 
-        $scan = Route::get('/discovery/scan', [DiscoveryScanController::class, 'scan'])
-            ->middleware('throttle:60,1');
-        if ($isCanonical) {
-            $scan->name('quinrel.api.discovery.scan');
-        }
-
-        $audit = Route::post('/webhooks/audit', AuditWebhookController::class);
-        if ($isCanonical) {
-            $audit->name('quinrel.webhooks.audit');
-        }
-    });
-}
+    Route::post('/webhooks/audit', AuditWebhookController::class)
+        ->name('quinrel.webhooks.audit');
+});

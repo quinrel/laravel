@@ -7,6 +7,7 @@ namespace Quinrel\Laravel\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Quinrel\Laravel\Models\Quinrel404Log;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -28,6 +29,15 @@ class Quinrel404MonitorMiddleware
             if ($extension !== '' && in_array($extension, $this->ignoredExtensions, true)) {
                 return $response;
             }
+
+            $maxPerMinute = (int) config('quinrel.redirects.max_404_logs_per_minute', 60);
+            $limiterKey = 'quinrel:404-log:'.($request->ip() ?? 'unknown');
+
+            if ($maxPerMinute > 0 && RateLimiter::tooManyAttempts($limiterKey, $maxPerMinute)) {
+                return $response;
+            }
+
+            RateLimiter::hit($limiterKey, 60);
 
             $referrerHeader = $request->headers->get('referer');
             $referrer = is_string($referrerHeader) && $referrerHeader !== ''

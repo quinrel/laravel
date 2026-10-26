@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Quinrel\Laravel\Models\Quinrel404Log;
+use Quinrel\Laravel\Services\Technical\Remediation\AutoRedirectCreator;
 
 class Quinrel404LogResource extends Resource
 {
@@ -59,6 +60,13 @@ class Quinrel404LogResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('create_suggested_redirect')
+                    ->label('Create Suggested Redirect')
+                    ->icon('heroicon-o-arrow-right-circle')
+                    ->color('success')
+                    ->action(function (Quinrel404Log $record): void {
+                        app(AutoRedirectCreator::class)->createFrom404($record);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

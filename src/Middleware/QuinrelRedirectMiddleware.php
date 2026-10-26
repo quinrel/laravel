@@ -78,7 +78,9 @@ class QuinrelRedirectMiddleware
                 }
             }
 
-            QuinrelRedirect::whereKey($matched['id'])->increment('hits');
+            if (config('quinrel.redirects.track_hits', true)) {
+                QuinrelRedirect::whereKey($matched['id'])->increment('hits');
+            }
 
             return redirect()->to($targetUrl, $matched['status_code']);
         }
@@ -94,14 +96,20 @@ class QuinrelRedirectMiddleware
             if (@preg_match($pattern, $path) === 1) {
                 $target = @preg_replace($pattern, $regexRedirect['target_url'], $path);
                 if (is_string($target)) {
-                    QuinrelRedirect::whereKey($regexRedirect['id'])->increment('hits');
+                    $target = $this->sanitizeRedirectTarget($target, $regexRedirect['target_url']);
+                    if (config('quinrel.redirects.track_hits', true)) {
+                        QuinrelRedirect::whereKey($regexRedirect['id'])->increment('hits');
+                    }
 
                     return redirect()->to($target, $regexRedirect['status_code']);
                 }
             } elseif (@preg_match($pattern, $normalizedPath) === 1) {
                 $target = @preg_replace($pattern, $regexRedirect['target_url'], $normalizedPath);
                 if (is_string($target)) {
-                    QuinrelRedirect::whereKey($regexRedirect['id'])->increment('hits');
+                    $target = $this->sanitizeRedirectTarget($target, $regexRedirect['target_url']);
+                    if (config('quinrel.redirects.track_hits', true)) {
+                        QuinrelRedirect::whereKey($regexRedirect['id'])->increment('hits');
+                    }
 
                     return redirect()->to($target, $regexRedirect['status_code']);
                 }
@@ -109,5 +117,21 @@ class QuinrelRedirectMiddleware
         }
 
         return $next($request);
+    }
+
+    /**
+     * Prevent protocol-relative open redirects (e.g. //evil.com) when substituting regex captures into relative targets.
+     */
+    protected function sanitizeRedirectTarget(string $resolvedTarget, string $configuredTarget): string
+    {
+        if (
+            ! str_starts_with(strtolower($configuredTarget), 'http://') &&
+            ! str_starts_with(strtolower($configuredTarget), 'https://') &&
+            str_starts_with($resolvedTarget, '//')
+        ) {
+            return '/'.ltrim($resolvedTarget, '/');
+        }
+
+        return $resolvedTarget;
     }
 }

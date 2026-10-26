@@ -54,8 +54,8 @@ class ImageSchemaEnricher
         }
 
         try {
-            $response = Http::timeout(3)->get($imageUrl);
-            if ($response->successful()) {
+            $response = UrlValidator::safeGet($imageUrl, 3);
+            if ($response !== null && $response->successful()) {
                 $size = @getimagesizefromstring($response->body());
                 if (is_array($size)) {
                     return [(int) $size[0], (int) $size[1]];

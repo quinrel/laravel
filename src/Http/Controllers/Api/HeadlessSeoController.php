@@ -6,6 +6,7 @@ namespace Quinrel\Laravel\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Quinrel\Laravel\Models\QuinrelMeta;
 
 class HeadlessSeoController
@@ -22,6 +23,10 @@ class HeadlessSeoController
         $meta = $query->first();
 
         if (! $meta) {
+            return response()->json(['error' => 'SEO metadata not found'], 404);
+        }
+
+        if (str_contains(strtolower((string) $meta->robots), 'noindex') && ! Gate::allows('view-quinrel')) {
             return response()->json(['error' => 'SEO metadata not found'], 404);
         }
 

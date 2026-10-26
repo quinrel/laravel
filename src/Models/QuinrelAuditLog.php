@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Quinrel\Laravel\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -20,6 +22,8 @@ use Illuminate\Support\Carbon;
  */
 class QuinrelAuditLog extends Model
 {
+    use MassPrunable;
+
     protected $table = 'quinrel_audit_logs';
 
     protected $fillable = [
@@ -37,4 +41,14 @@ class QuinrelAuditLog extends Model
         'old_values' => 'array',
         'new_values' => 'array',
     ];
+
+    /**
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        $days = (int) config('quinrel.audit_log.retention_days', 90);
+
+        return static::where('created_at', '<=', now()->subDays(max(1, $days)));
+    }
 }

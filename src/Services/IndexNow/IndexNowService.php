@@ -17,7 +17,7 @@ class IndexNowService
      */
     public function submit(array $urls): bool
     {
-        $key = (string) (config('quinrel.indexnow.key') ?: config('quinrel.api.indexnow_key', ''));
+        $key = (string) config('quinrel.indexnow.key', '');
 
         if (! config('quinrel.indexnow.enabled') || $key === '') {
             return false;

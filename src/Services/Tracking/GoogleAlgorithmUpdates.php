@@ -13,7 +13,27 @@ class GoogleAlgorithmUpdates
      */
     public function getUpdates(): array
     {
-        return [
+        $defaults = [
+            [
+                'name' => 'March 2025 Core Update',
+                'date' => '2025-03-13',
+                'type' => 'Core',
+            ],
+            [
+                'name' => 'December 2024 Core Update',
+                'date' => '2024-12-12',
+                'type' => 'Core',
+            ],
+            [
+                'name' => 'November 2024 Core Update',
+                'date' => '2024-11-11',
+                'type' => 'Core',
+            ],
+            [
+                'name' => 'August 2024 Core Update',
+                'date' => '2024-08-15',
+                'type' => 'Core',
+            ],
             [
                 'name' => 'March 2024 Core Update',
                 'date' => '2024-03-05',
@@ -30,6 +50,19 @@ class GoogleAlgorithmUpdates
                 'type' => 'Core',
             ],
         ];
+
+        $custom = config('quinrel.gsc.algorithm_updates', []);
+        if (is_array($custom) && $custom !== []) {
+            /** @var array<int, array<string, mixed>> $validCustom */
+            $validCustom = array_values(array_filter(
+                $custom,
+                fn (mixed $item): bool => is_array($item) && isset($item['name'], $item['date'])
+            ));
+
+            return array_merge($validCustom, $defaults);
+        }
+
+        return $defaults;
     }
 
     /**

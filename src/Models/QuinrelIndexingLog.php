@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Quinrel\Laravel\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -18,6 +20,8 @@ use Illuminate\Support\Carbon;
  */
 class QuinrelIndexingLog extends Model
 {
+    use MassPrunable;
+
     protected $table = 'quinrel_indexing_logs';
 
     protected $fillable = [
@@ -31,4 +35,14 @@ class QuinrelIndexingLog extends Model
         'status_code' => 'integer',
         'response' => 'array',
     ];
+
+    /**
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        $days = (int) config('quinrel.indexnow.retention_days', 30);
+
+        return static::where('created_at', '<=', now()->subDays(max(1, $days)));
+    }
 }

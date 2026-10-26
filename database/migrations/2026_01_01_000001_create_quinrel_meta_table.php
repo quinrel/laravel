@@ -16,14 +16,18 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->string('canonical_url')->nullable()->index();
+            $table->json('hreflang_links')->nullable();
             $table->string('robots')->nullable()->default('index, follow');
             $table->string('og_image')->nullable();
             $table->json('social_overrides')->nullable();
+            $table->json('custom_schema')->nullable();
             $table->boolean('is_cornerstone')->default(false);
+            $table->string('target_keyword')->nullable()->index();
             $table->timestamp('last_reviewed_at')->nullable();
             $table->timestamps();
 
             $table->index(['is_cornerstone', 'last_reviewed_at']);
+            $table->unique(['model_type', 'model_id']);
         });
     }
 
